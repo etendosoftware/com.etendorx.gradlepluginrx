@@ -1,6 +1,5 @@
 package com.etendorx
 
-
 import com.etendorx.rx.RxLoader
 import com.etendorx.codegen.CodeGenLoader
 import org.gradle.api.Plugin

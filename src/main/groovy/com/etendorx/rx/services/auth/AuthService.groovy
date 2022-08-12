@@ -1,12 +1,11 @@
 package com.etendorx.rx.services.auth
 
-
 import com.etendorx.EtendoRxPluginExtension
 import com.etendorx.rx.services.base.BaseService
 import org.gradle.api.Action
 import org.gradle.api.Project
 
-class AuthService extends BaseService{
+class AuthService extends BaseService {
 
     static final String DEFAULT_PROJECT_PATH = ":com.etendorx.auth"
     static final String DEFAULT_NAME = "auth"

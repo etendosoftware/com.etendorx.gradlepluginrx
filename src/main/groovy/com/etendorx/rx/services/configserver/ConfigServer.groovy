@@ -1,6 +1,5 @@
 package com.etendorx.rx.services.configserver
 
-
 import com.etendorx.EtendoRxPluginExtension
 import com.etendorx.rx.services.base.BaseService
 import org.gradle.api.Action
