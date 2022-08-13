@@ -1,6 +1,7 @@
 package com.etendorx.rx.services.configserver
 
 import com.etendorx.EtendoRxPluginExtension
+import com.etendorx.gradle.GradleUtils
 import com.etendorx.rx.services.base.BaseService
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -17,12 +18,14 @@ class ConfigServer extends BaseService {
     static final String DEFAULT_CONFIG = "configserver"
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
-        service.projectServicePath = DEFAULT_PROJECT_PATH
+        service.subprojectPath = DEFAULT_PROJECT_PATH
         service.serviceName = DEFAULT_NAME
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
         service.dependencyVersion = DEFAULT_VERSION
+        service.subProject = service.mainProject.findProject(service.subprojectPath)
+        service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([
                 'SPRING_PROFILES_ACTIVE': "native",
                 "SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS": "file://${service.mainProject.projectDir.absolutePath}/rxconfig"
@@ -32,15 +35,17 @@ class ConfigServer extends BaseService {
     TaskProvider runServiceTask
 
     ConfigServer(Project mainProject) {
-        super(mainProject,
-                DEFAULT_ACTION,
-                mainProject.extensions.findByType(EtendoRxPluginExtension).configServerAction
-        )
-        this.configurationContainer = this.mainProject.configurations.create(DEFAULT_CONFIG)
+        super(mainProject, DEFAULT_ACTION)
     }
 
     void load() {
         loadJavaExecAction()
+    }
+
+    @Override
+    void configureExtensionAction() {
+        GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).configServerAction)
+        this.subProject = this.mainProject.findProject(this.subprojectPath)
     }
 
 }

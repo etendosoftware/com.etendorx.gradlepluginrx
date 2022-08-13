@@ -52,22 +52,33 @@ class RxLaunch {
         if (excludeServices) {
             this.servicesToExclude.addAll(excludeServices.split(","))
         }
+    }
+
+    List<BaseService> configureServicesToRun() {
         this.servicesToExclude.addAll(this.mainProject.extensions.findByType(EtendoRxPluginExtension).excludedServices)
+
+        def servicesToRun = services.stream().filter({
+            !(it.serviceName in this.servicesToExclude)
+        }).collect(Collectors.toList()).each({
+            it.configureExtensionAction()
+        })
+
+        return servicesToRun
     }
 
     void generateLaunchTask() {
-        // Filter services to run
-        def servicesToRun = services.stream().filter({
-            !(it.serviceName in this.servicesToExclude)
-        }).collect(Collectors.toList())
+        List<BaseService> servicesToRun = []
 
         this.launchServicesTask = this.mainProject.tasks.register(LAUNCH_TASK) {
             dependsOn({
+                // Filter services to run
+                servicesToRun = configureServicesToRun()
+
                 // In case of the service is in sources
                 // Execute the necessary jar tasks to generate the JAR files
                 def dependsOnServices = []
                 servicesToRun.each {
-                    Optional<List<Task>> jarTasks = it.loadJarTasks()
+                    Optional<List<Task>> jarTasks = it.loadBuildTasks()
                     if (jarTasks.isPresent()) {
                         dependsOnServices.addAll(jarTasks.get())
                     }

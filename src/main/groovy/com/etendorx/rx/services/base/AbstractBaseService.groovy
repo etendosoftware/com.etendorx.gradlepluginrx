@@ -1,11 +1,8 @@
 package com.etendorx.rx.services.base
 
-abstract class AbstractBaseService {
+import org.gradle.api.Project
 
-    /**
-     * The project path notation of the service
-     */
-    String projectServicePath
+abstract class AbstractBaseService extends AbstractExecutableJar {
 
     /**
      * The name of the service
@@ -18,32 +15,22 @@ abstract class AbstractBaseService {
     String port
 
     /**
-     * The group of the dependency to be resolved
-     */
-    String dependencyGroup
-
-    /**
-     * The artifact name of the dependency to ve resolved
-     */
-    String dependencyArtifact
-
-    /**
-     * The version of the dependency to be resolved
-     */
-    String dependencyVersion
-
-    Map<String, ?> environment = new HashMap<>()
-
-    /**
      * List of dynamic subproject paths to add to the DAS classpath service
      */
     List<String> subprojectsPath = new ArrayList<>()
+
+    AbstractBaseService(Project mainProject) {
+        super(mainProject)
+    }
 
     void subprojectsPath(List<String> subprojectPath) {
         this.subprojectsPath.addAll(subprojectPath)
     }
 
-    void environment(Map<String, ?> environmentVariables) {
-        this.environment.putAll(environmentVariables);
+    @Override
+    String toString() {
+        return """
+        |* Service name: ${this.serviceName}
+        |* Port: ${this.port}${super.toString()}""".stripMargin()
     }
 }

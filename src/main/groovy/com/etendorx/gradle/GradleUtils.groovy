@@ -1,5 +1,6 @@
 package com.etendorx.gradle
 
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.logging.LogLevel
@@ -17,4 +18,17 @@ class GradleUtils {
         }
         return task
     }
+
+    static <T> void runActions(T obj, Action<T>... actions) {
+        actions.each {
+            runAction(obj, it)
+        }
+    }
+
+    static <T> void runAction(T obj, Action<T> action) {
+        if (action) {
+            action.execute(obj)
+        }
+    }
+
 }
