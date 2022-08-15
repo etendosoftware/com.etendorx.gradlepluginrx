@@ -17,7 +17,7 @@ import java.util.stream.Collectors
 
 class RxLaunch {
 
-    static final String LAUNCH_TASK = "rxtest"
+    static final String LAUNCH_TASK = "rx"
     static final String EXCLUDE_SERVICES_PROPERTY = "rx_exclude"
 
     Project mainProject
