@@ -3,10 +3,7 @@ package com.etendorx.rx.services.base
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.process.JavaExecSpec
-
-import java.nio.file.Files
 import java.time.LocalDate
-import java.time.LocalTime
 
 class BaseService extends AbstractBaseService {
     static final String BOOT_JAR_TASK = "bootJar"
