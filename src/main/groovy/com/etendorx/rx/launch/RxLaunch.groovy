@@ -7,12 +7,14 @@ import com.etendorx.rx.services.configserver.ConfigServer
 import com.etendorx.rx.services.base.BaseService
 import com.etendorx.rx.services.das.DasService
 import com.etendorx.rx.services.edge.EdgeService
+import org.apache.tools.ant.taskdefs.Local
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.internal.logging.text.StyledTextOutput
 import org.gradle.internal.logging.text.StyledTextOutputFactory
 
+import java.time.LocalDate
 import java.util.stream.Collectors
 
 class RxLaunch {
@@ -121,6 +123,7 @@ class RxLaunch {
     void servicesHealCheck(List<BaseService> services) {
         do {
             Thread.sleep(10000)
+            out.withStyle(StyledTextOutput.Style.Info).println("${LocalDate.now()} - Running services status.")
             for (BaseService service : services) {
                 try {
                     def message = new URL("http://localhost:" + service.port + "/actuator/health").text
