@@ -3,6 +3,7 @@ package com.etendorx.rx.services.base
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.process.JavaExecSpec
+import java.time.LocalDate
 
 class BaseService extends AbstractBaseService {
     static final String BOOT_JAR_TASK = "bootJar"
@@ -17,6 +18,21 @@ class BaseService extends AbstractBaseService {
         this(mainProject)
         this.buildTaskName = BOOT_JAR_TASK
         ExecutableUtils.configureExecutable(this.mainProject, this, defaultAction)
+        // Configure logs
+        configureLogs()
+    }
+
+    void configureLogs() {
+        File defaultLogDir = new File(this.mainProject.projectDir, "logs")
+
+        if (!defaultLogDir.exists() || !defaultLogDir.isDirectory()) {
+            defaultLogDir = new File("/var/log")
+        }
+
+        this.environment([
+                "CONSOLE_LOG_PATTERN": "",
+                "LOGGING_FILE_NAME": "${defaultLogDir.absolutePath}${File.separator}${this.serviceName}-${LocalDate.now().toString()}.log"
+        ])
     }
 
     void loadJavaExecAction() {
