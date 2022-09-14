@@ -43,7 +43,6 @@ class CodeGenContainer extends AbstractExecutableJar {
 
     CodeGenContainer(Project mainProject) {
         super(mainProject)
-        println("**** COMMANDS: ${loadCommandLineParameters()}")
         this.buildTaskName = "build"
         ExecutableUtils.configureExecutable(this.mainProject, this, DEFAULT_ACTION)
     }
@@ -81,12 +80,14 @@ class CodeGenContainer extends AbstractExecutableJar {
         this.mainProject.tasks.register("configure${ENTITIES_TASK}") {
             doLast {
                 JavaExec task = this.mainProject.tasks.findByName(ENTITIES_TASK) as JavaExec
+                def commandLineParameters = loadCommandLineParameters()
+                project.logger.info("*** Command line parameters: ${commandLineParameters}")
                 if (task) {
                     this.loadClasspathFiles()
                     task.mainClass = MAIN_CLASS
                     task.classpath = this.fileCollectionClasspath
                     task.setEnvironment(this.environment)
-                    task.args += loadCommandLineParameters()
+                    task.args += commandLineParameters
                 }
             }
         }
