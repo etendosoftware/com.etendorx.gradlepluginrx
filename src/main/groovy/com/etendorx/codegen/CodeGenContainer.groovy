@@ -20,6 +20,16 @@ class CodeGenContainer extends AbstractExecutableJar {
     static final String ENTITIES_TASK = "generate.entities"
     static final String MAIN_CLASS = "com.etendorx.gen.GenerateEntitiesApplication"
 
+    static final String GENERATE_PROPERTY = "generate"
+    static final String EXCLUDED_MODULES_PROPERTY = "excludedModules"
+    static final String INCLUDED_MODULES_PROPERTY = "includedModules"
+
+    Map propertiesMap = [
+            "${GENERATE_PROPERTY}" : "-g",
+            "${EXCLUDED_MODULES_PROPERTY}" : "-e",
+            "${INCLUDED_MODULES_PROPERTY}" : "-i"
+    ]
+
     static final Action<AbstractExecutableJar> DEFAULT_ACTION = { AbstractExecutableJar executable ->
         executable.subprojectPath = DEFAULT_PROJECT_PATH
         executable.dependencyGroup = DEFAULT_GROUP
@@ -55,18 +65,33 @@ class CodeGenContainer extends AbstractExecutableJar {
         }
     }
 
+    List<String> loadCommandLineParameters() {
+        def commands = []
+        propertiesMap.each {
+            def property = mainProject.findProperty(it.key)
+            if (property != null) {
+                commands += ["${it.value}", property as String]
+            }
+        }
+        return commands
+    }
+
     void registerEntitiesTask() {
         this.mainProject.tasks.register("configure${ENTITIES_TASK}") {
             doLast {
                 JavaExec task = this.mainProject.tasks.findByName(ENTITIES_TASK) as JavaExec
+                def commandLineParameters = loadCommandLineParameters()
+                project.logger.info("*** Command line parameters: ${commandLineParameters}")
                 if (task) {
                     this.loadClasspathFiles()
                     task.mainClass = MAIN_CLASS
                     task.classpath = this.fileCollectionClasspath
                     task.setEnvironment(this.environment)
+                    task.args += commandLineParameters
                 }
             }
         }
+
 
         this.entitiesTask = this.mainProject.tasks.register(ENTITIES_TASK, JavaExec) {
             dependsOn({
