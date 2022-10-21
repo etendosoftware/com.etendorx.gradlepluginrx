@@ -3,11 +3,10 @@ package com.etendorx.rx.launch
 import com.etendorx.EtendoRxPluginExtension
 import com.etendorx.rx.services.asyncprocess.AsyncProcessService
 import com.etendorx.rx.services.auth.AuthService
-import com.etendorx.rx.services.configserver.ConfigServer
 import com.etendorx.rx.services.base.BaseService
+import com.etendorx.rx.services.configserver.ConfigServer
 import com.etendorx.rx.services.das.DasService
 import com.etendorx.rx.services.edge.EdgeService
-import org.apache.tools.ant.taskdefs.Local
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider

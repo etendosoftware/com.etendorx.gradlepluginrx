@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskProvider
 
 class GradleUtils {
 
-    static TaskProvider<Task> getTaskByName(Project mainProject, Project subProject, String taskName, LogLevel logLevel=LogLevel.DEBUG) {
+    static TaskProvider<Task> getTaskByName(Project mainProject, Project subProject, String taskName, LogLevel logLevel = LogLevel.DEBUG) {
         TaskProvider<Task> task = null
         try {
             task = subProject.tasks.named(taskName)

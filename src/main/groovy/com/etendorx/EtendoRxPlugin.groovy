@@ -1,7 +1,7 @@
 package com.etendorx
 
-import com.etendorx.rx.RxLoader
 import com.etendorx.codegen.CodeGenLoader
+import com.etendorx.rx.RxLoader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin

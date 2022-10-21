@@ -3,6 +3,7 @@ package com.etendorx.rx.services.base
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.process.JavaExecSpec
+
 import java.time.LocalDate
 
 class BaseService extends AbstractBaseService {
@@ -31,7 +32,7 @@ class BaseService extends AbstractBaseService {
 
         this.environment([
                 "CONSOLE_LOG_PATTERN": "",
-                "LOGGING_FILE_NAME": "${defaultLogDir.absolutePath}${File.separator}${this.serviceName}-${LocalDate.now().toString()}.log"
+                "LOGGING_FILE_NAME"  : "${defaultLogDir.absolutePath}${File.separator}${this.serviceName}-${LocalDate.now().toString()}.log"
         ])
     }
 
