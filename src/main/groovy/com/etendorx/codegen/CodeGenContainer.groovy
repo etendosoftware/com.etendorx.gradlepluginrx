@@ -18,6 +18,7 @@ class CodeGenContainer extends AbstractExecutableJar {
     static final String DEFAULT_CONFIG = "entities"
 
     static final String ENTITIES_TASK = "generate.entities"
+    static final String TEST_ENTITIES_TASK = "generate.entities.test"
     static final String MAIN_CLASS = "com.etendorx.gen.GenerateEntitiesApplication"
 
     static final String GENERATE_PROPERTY = "generate"
@@ -55,6 +56,7 @@ class CodeGenContainer extends AbstractExecutableJar {
 
     void load() {
         this.registerEntitiesTask()
+        this.registerTestEntitiesTask()
     }
 
     @Override
@@ -76,11 +78,14 @@ class CodeGenContainer extends AbstractExecutableJar {
         return commands
     }
 
-    void registerEntitiesTask() {
-        this.mainProject.tasks.register("configure${ENTITIES_TASK}") {
+    void generateEntitiesTaskBuilder(taskName , List<String> extraParameters) {
+        this.mainProject.tasks.register("configure${taskName}") {
             doLast {
-                JavaExec task = this.mainProject.tasks.findByName(ENTITIES_TASK) as JavaExec
+                JavaExec task = this.mainProject.tasks.findByName(taskName) as JavaExec
                 def commandLineParameters = loadCommandLineParameters()
+                if(extraParameters != null) {
+                    commandLineParameters.addAll(extraParameters)
+                }
                 project.logger.info("*** Command line parameters: ${commandLineParameters}")
                 if (task) {
                     this.loadClasspathFiles()
@@ -92,10 +97,9 @@ class CodeGenContainer extends AbstractExecutableJar {
             }
         }
 
-
-        this.entitiesTask = this.mainProject.tasks.register(ENTITIES_TASK, JavaExec) {
+        this.entitiesTask = this.mainProject.tasks.register(taskName, JavaExec) {
             dependsOn({
-                def tasks = [this.mainProject.tasks.findByName("configure${ENTITIES_TASK}")]
+                def tasks = [this.mainProject.tasks.findByName("configure${taskName}")]
                 this.configureExtensionAction()
 
                 def buildTasks = this.loadBuildTasks()
@@ -111,6 +115,14 @@ class CodeGenContainer extends AbstractExecutableJar {
                 suspend = true
             }
         }
+    }
+
+    void registerEntitiesTask() {
+        generateEntitiesTaskBuilder(ENTITIES_TASK, null)
+    }
+
+    void registerTestEntitiesTask() {
+        generateEntitiesTaskBuilder(TEST_ENTITIES_TASK, ["--test"])
     }
 
 }
