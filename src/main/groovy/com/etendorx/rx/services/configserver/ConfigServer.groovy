@@ -27,7 +27,7 @@ class ConfigServer extends BaseService {
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([
-                'SPRING_PROFILES_ACTIVE': "native",
+                'SPRING_PROFILES_ACTIVE'                           : "native",
                 "SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS": "file://${service.mainProject.projectDir.absolutePath}/rxconfig"
         ])
     }

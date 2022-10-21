@@ -26,7 +26,7 @@ class AuthService extends BaseService {
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([
-                'SPRING_PROFILES_ACTIVE' : 'dev'
+                'SPRING_PROFILES_ACTIVE': 'dev'
         ])
     }
 
