@@ -13,7 +13,7 @@ class DasUtils {
     static final String CONFIGURATION_CONTAINER = "bundle"
 
     static Optional<TaskProvider<? extends Task>> createCustomFatJarTask(Project mainProject, Project subProject,
-                                                              String jarName, String taskName="customFatJar") {
+                                                                         String jarName, String taskName = "customFatJar") {
         if (subProject) {
             def task = GradleUtils.getTaskByName(mainProject, subProject, taskName)
             if (task != null) {

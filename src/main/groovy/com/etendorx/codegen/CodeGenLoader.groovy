@@ -4,7 +4,7 @@ import org.gradle.api.Project
 
 class CodeGenLoader {
 
-    static void load (Project project) {
+    static void load(Project project) {
         new CodeGenCleanContainer(project).load()
         new CodeGenContainer(project).load()
 

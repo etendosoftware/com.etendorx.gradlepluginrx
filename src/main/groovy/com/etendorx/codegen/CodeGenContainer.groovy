@@ -25,9 +25,9 @@ class CodeGenContainer extends AbstractExecutableJar {
     static final String INCLUDED_MODULES_PROPERTY = "includedModules"
 
     Map propertiesMap = [
-            "${GENERATE_PROPERTY}" : "-g",
-            "${EXCLUDED_MODULES_PROPERTY}" : "-e",
-            "${INCLUDED_MODULES_PROPERTY}" : "-i"
+            "${GENERATE_PROPERTY}"        : "-g",
+            "${EXCLUDED_MODULES_PROPERTY}": "-e",
+            "${INCLUDED_MODULES_PROPERTY}": "-i"
     ]
 
     static final Action<AbstractExecutableJar> DEFAULT_ACTION = { AbstractExecutableJar executable ->
