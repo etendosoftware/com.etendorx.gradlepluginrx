@@ -11,6 +11,10 @@ class CodeGenLoader {
         project.tasks.getByName(CodeGenContainer.ENTITIES_TASK).dependsOn({
             project.tasks.findByName(CodeGenCleanContainer.CLEAN_TASK)
         })
+
+        project.tasks.getByName(CodeGenContainer.TEST_ENTITIES_TASK).dependsOn({
+            project.tasks.findByName(CodeGenCleanContainer.CLEAN_TASK)
+        })
     }
 
 }
