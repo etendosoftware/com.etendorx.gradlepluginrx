@@ -11,7 +11,7 @@ import org.gradle.api.publish.plugins.PublishingPlugin
 
 class EtendoRxPlugin implements Plugin<Project> {
 
-    static final String PLUGIN_VERSION = "1.0.1"
+    static final String PLUGIN_VERSION = "1.0.2"
     static final String EXTENSION_NAME = "etendorx"
 
     @Override
