@@ -96,6 +96,7 @@ class DasService extends BaseService {
             spec.systemProperties = [
                     "loader.path": loaderPath
             ]
+            spec.jvmArgs = ['-XX:+UseSerialGC', '-XX:+UseStringDeduplication']
         }
     }
 }
