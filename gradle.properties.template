@@ -1,5 +1,7 @@
-nexusUser=""
-nexusPassword=""
+githubUser=
+githubToken=
+nexusUser=
+nexusPassword=
 
 org.gradle.daemon=false
 org.gradle.jvmargs=-Xmx2g -XX:MaxPermSize=1024m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
