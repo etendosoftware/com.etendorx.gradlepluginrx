@@ -1,0 +1,126 @@
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+def MAIN = "main"
+def DEV = "dev"
+def PROD = "prod"
+
+final String URL_PROD = "https://maven.pkg.github.com/etendosoftware/com.etendorx.gradlepluginrx"
+final String URL_DEV = "https://repo.futit.cloud/repository/maven-public-snapshots"
+final String PLUGIN_VERSION = "1.1.0"
+
+// Default mode
+def mode = DEV
+
+// If the version is updated, make sure to change it in the 'EtendoRxPlugin' class
+def pluginVersion = PLUGIN_VERSION
+
+static def gitBranch() {
+    def branch = ""
+    def proc = "git rev-parse --abbrev-ref HEAD".execute()
+    proc.in.eachLine { line -> branch = line }
+    proc.err.eachLine { line -> println line }
+    proc.waitFor()
+    branch
+}
+
+if (MAIN == gitBranch()) {
+    mode = PROD
+}
+if (mode == DEV) {
+    pluginVersion += "-SNAPSHOT"
+}
+
+def urlToPublish = (mode == PROD) ? URL_PROD : URL_DEV
+
+group 'com.etendorx'
+version(pluginVersion)
+
+repositories {
+    mavenCentral()
+}
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                if (mode == PROD) {
+                    username "$githubUser"
+                    password "$githubToken"
+                } else {
+                    username "$nexusUser"
+                    password "$nexusPassword"
+                }
+            }
+            url(urlToPublish)
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    testImplementation gradleTestKit()
+}
+
+tasks.withType(Test).configureEach {
+    // Using JUnitPlatform for running tests
+    useJUnitPlatform()
+}
+
+task upgradePluginVersion() {
+    final String MAJOR = 'major'
+    final String MINOR = 'minor'
+    final String PATCH = 'patch'
+    doLast {
+        def typeVersion
+        if (project.hasProperty('type')){
+            typeVersion = project.getProperty('type')
+        } else {
+            throw new GradleException("The parameter -Ptype is required")
+        }
+
+        if (typeVersion != MAJOR && typeVersion != MINOR && typeVersion != PATCH) {
+            throw new GradleException("The parameter value '${typeVersion}' is not valid, the options should be 'major', 'minor' or 'patch'")
+        }
+
+        def version = PLUGIN_VERSION.trim().split("\\.")
+        if (version.length != 3) {
+            throw new GradleException("The version must be in the format major.minor.patch")
+        }
+
+        if (typeVersion == MAJOR) {
+            version[0]++
+            version[1] = 0
+            version[2] = 0
+        } else if (typeVersion == MINOR) {
+            version[1]++
+            version[2] = 0
+        } else if (typeVersion == PATCH) {
+            version[2]++
+        }
+        def nextVersion = "${version[0]}.${version[1]}.${version[2]}"
+
+        //Rewrite build.gradle file with new value
+        def buildGradleContent = file('build.gradle').text
+        buildGradleContent = buildGradleContent.replaceAll(/PLUGIN_VERSION = \"${PLUGIN_VERSION}\"/, "PLUGIN_VERSION = \"${nextVersion}\"")
+        file('build.gradle').write(buildGradleContent)
+
+        //Rewrite EtendoPlugin.groovy file with new value
+        def etendoPluginContent = file('src/main/groovy/com/etendorx/EtendoRxPlugin.groovy').text
+        etendoPluginContent = etendoPluginContent.replaceAll(/PLUGIN_VERSION = \"\d+.\d+.\d+\"/, "PLUGIN_VERSION = \"${nextVersion}\"")
+        file('src/main/groovy/com/etendorx/EtendoRxPlugin.groovy').write(etendoPluginContent)
+    }
+}
+
+gradlePlugin {
+    plugins {
+        etendoPlugin {
+            id = "com.etendorx.gradlepluginrx"
+            implementationClass = "com.etendorx.EtendoRxPlugin"
+        }
+    }
+}
