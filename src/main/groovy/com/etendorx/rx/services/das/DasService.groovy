@@ -36,6 +36,7 @@ class DasService extends BaseService {
                 'SPRING_PROFILES_ACTIVE': 'dev'
         ])
         service.subprojectsPath = DYNAMIC_SUBPROJECTS
+        service.subprojectsPath.addAll(DasUtils.addDynamicDependencies(service.mainProject));
     }
 
     List<Task> dynamicTasks = new ArrayList<>()

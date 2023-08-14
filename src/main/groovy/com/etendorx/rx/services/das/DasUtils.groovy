@@ -52,4 +52,35 @@ class DasUtils {
         return files*.absolutePath.toList().join(",")
     }
 
+    static List<String> addDynamicDependencies(Project mainProject) {
+        List<String> dynamicDependencies = new LinkedList<>();
+
+        def directories = [mainProject.getRootProject().projectDir.absolutePath]
+        directories.each { dir ->
+            var fileToFind = "build.gradle"
+            def subDirs = findSubDirectoriesWithFile(new File(dir), fileToFind)
+            subDirs.each { subDir ->
+                if (includeInDasDependencies(new File(subDir, fileToFind))) {
+                    dynamicDependencies.add(":${subDir.name}")
+                }
+            }
+        }
+        return dynamicDependencies;
+    }
+
+    static List<File> findSubDirectoriesWithFile(File startDir, String fileName) {
+        def subDirs = []
+        startDir.eachDirRecurse { dir ->
+            if (new File(dir, fileName).isFile()) {
+                subDirs << dir
+            }
+        }
+        return subDirs
+    }
+
+    static boolean includeInDasDependencies(File propertiesFile) {
+        Properties properties = new Properties()
+        propertiesFile.withInputStream { properties.load(it) }
+        return properties.get('includeInDasDependencies')?.toBoolean() ?: false
+    }
 }
