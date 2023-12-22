@@ -20,4 +20,9 @@ class EtendoRxPluginExtension {
 
     List<String> excludedServices = new ArrayList<>()
 
+    String version = "latest.integration"
+
+    void setVersion(String version) {
+        this.version = version
+    }
 }

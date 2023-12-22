@@ -17,12 +17,18 @@ class AsyncProcessService extends BaseService {
     static final String DEFAULT_CONFIG = "asyncprocess"
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
+        def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
+
         service.subprojectPath = DEFAULT_PROJECT_PATH
         service.serviceName = DEFAULT_NAME
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        service.dependencyVersion = DEFAULT_VERSION
+        var version = extension.version
+        if(version == null) {
+            version = DEFAULT_VERSION
+        }
+        service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([

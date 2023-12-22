@@ -23,17 +23,27 @@ class DasService extends BaseService {
             ":com.etendorx.grpc.common"
     ]
 
+    static String version;
+
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
+        def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
+
         service.subprojectPath = DEFAULT_PROJECT_PATH
         service.serviceName = DEFAULT_NAME
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        service.dependencyVersion = DEFAULT_VERSION
+        version = extension.version
+        if(version == null) {
+            version = DEFAULT_VERSION
+        }
+        service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([
-                'SPRING_PROFILES_ACTIVE': 'dev'
+                'SPRING_PROFILES_ACTIVE': 'dev',
+                'SPRING_CONFIG_IMPORT': 'configserver:http://localhost:8888',
+                'SPRING_APPLICATION_NAME': 'das'
         ])
         service.subprojectsPath = DYNAMIC_SUBPROJECTS
         service.subprojectsPath.addAll(DasUtils.addDynamicDependencies(service.mainProject));
@@ -93,7 +103,9 @@ class DasService extends BaseService {
         this.javaExecAction = { JavaExecSpec spec ->
             spec.environment this.getEnvironment()
             spec.classpath classpathFiles
-            spec.mainClass = "org.springframework.boot.loader.PropertiesLauncher"
+            if(version.startsWith("2.")) {
+                spec.mainClass = "org.springframework.boot.loader.PropertiesLauncher"
+            }
             spec.systemProperties = [
                     "loader.path": loaderPath
             ]

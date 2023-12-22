@@ -20,10 +20,13 @@ class CodeGenContainer extends AbstractExecutableJar {
     static final String ENTITIES_TASK = "generate.entities"
     static final String TEST_ENTITIES_TASK = "generate.entities.test"
     static final String MAIN_CLASS = "com.etendorx.gen.GenerateEntitiesApplication"
+    static final String MAIN_CLASS_JAR = "org.springframework.boot.loader.JarLauncher"
 
     static final String GENERATE_PROPERTY = "generate"
     static final String EXCLUDED_MODULES_PROPERTY = "excludedModules"
     static final String INCLUDED_MODULES_PROPERTY = "includedModules"
+
+    static String version;
 
     Map propertiesMap = [
             "${GENERATE_PROPERTY}"        : "-g",
@@ -35,7 +38,11 @@ class CodeGenContainer extends AbstractExecutableJar {
         executable.subprojectPath = DEFAULT_PROJECT_PATH
         executable.dependencyGroup = DEFAULT_GROUP
         executable.dependencyArtifact = DEFAULT_ARTIFACT
-        executable.dependencyVersion = DEFAULT_VERSION
+        version = executable.mainProject.findProperty("rx.version")
+        if(version == null) {
+            version = DEFAULT_VERSION
+        }
+        executable.dependencyVersion = version
         executable.subProject = executable.mainProject.findProject(executable.subprojectPath)
         executable.configurationContainer = executable.mainProject.configurations.create(DEFAULT_CONFIG)
     }
@@ -89,7 +96,11 @@ class CodeGenContainer extends AbstractExecutableJar {
                 project.logger.info("*** Command line parameters: ${commandLineParameters}")
                 if (task) {
                     this.loadClasspathFiles()
-                    task.mainClass = MAIN_CLASS
+                    if(version.startsWith("2.")) {
+                        task.mainClass = MAIN_CLASS_JAR
+                    } else {
+                        task.mainClass = MAIN_CLASS
+                    }
                     task.classpath = this.fileCollectionClasspath
                     task.setEnvironment(this.environment)
                     task.args += commandLineParameters
