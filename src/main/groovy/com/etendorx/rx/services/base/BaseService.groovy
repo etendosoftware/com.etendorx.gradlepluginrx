@@ -47,7 +47,7 @@ class BaseService extends AbstractBaseService {
         this.javaExecAction = { JavaExecSpec spec ->
             spec.environment this.getEnvironment()
             spec.classpath classpathFiles
-            spec.jvmArgs = ['-XX:+UseSerialGC', '-XX:+UseStringDeduplication']
+            spec.jvmArgs = ['-XX:+UseSerialGC']
         }
     }
 }
