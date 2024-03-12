@@ -21,8 +21,6 @@ class EtendoRxPlugin implements Plugin<Project> {
     static final String EXTENSION_NAME = 'etendorx'
     static final String LINE = '**********************************************'
 
-    private Project project
-
     @Override
     /**
      * Applies the plugin to the given project.
@@ -30,9 +28,8 @@ class EtendoRxPlugin implements Plugin<Project> {
      * @param project The project to apply the plugin to.
      */
     void apply(Project project) {
-        logInfo()
+        logInfo(project)
         project.extensions.create(EXTENSION_NAME, EtendoRxPluginExtension)
-        this.project = project
         project.getPluginManager().apply(JavaBasePlugin)
         project.getPluginManager().apply(PublishingPlugin)
         project.getPluginManager().apply(MavenPublishPlugin)
@@ -45,9 +42,10 @@ class EtendoRxPlugin implements Plugin<Project> {
     /**
      * Logs information about the plugin.
      */
-    private void logInfo() {
+    private static void logInfo(Project project) {
         project.logger.info(LINE)
         project.logger.info('* ETENDO RX PLUGIN VERSION: ' + PLUGIN_VERSION)
         project.logger.info(LINE)
     }
+
 }

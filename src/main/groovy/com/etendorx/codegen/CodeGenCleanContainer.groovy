@@ -1,6 +1,7 @@
 package com.etendorx.codegen
 
 import groovy.io.FileType
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
@@ -8,7 +9,7 @@ import org.gradle.api.tasks.TaskProvider
 /**
  * A container class for cleaning generated code directories.
  */
-@CompileStatic
+@CompileDynamic
 class CodeGenCleanContainer {
 
     /**
