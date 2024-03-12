@@ -9,8 +9,14 @@ import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.publish.plugins.PublishingPlugin
 
+/**
+ * The EtendoRxPlugin class implements the Plugin interface for Gradle projects.
+ */
 class EtendoRxPlugin implements Plugin<Project> {
 
+    /**
+     * The version of the plugin.
+     */
     static final String PLUGIN_VERSION = '1.1.0'
     static final String EXTENSION_NAME = 'etendorx'
     static final String LINE = '**********************************************'
@@ -18,6 +24,11 @@ class EtendoRxPlugin implements Plugin<Project> {
     private Project project
 
     @Override
+    /**
+     * Applies the plugin to the given project.
+     *
+     * @param project The project to apply the plugin to.
+     */
     void apply(Project project) {
         logInfo()
         project.extensions.create(EXTENSION_NAME, EtendoRxPluginExtension)
@@ -31,6 +42,9 @@ class EtendoRxPlugin implements Plugin<Project> {
         RxLoader.load(project)
     }
 
+    /**
+     * Logs information about the plugin.
+     */
     private void logInfo() {
         project.logger.info(LINE)
         project.logger.info('* ETENDO RX PLUGIN VERSION: ' + PLUGIN_VERSION)

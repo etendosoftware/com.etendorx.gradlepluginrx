@@ -6,8 +6,14 @@ import com.etendorx.rx.services.base.BaseService
 import org.gradle.api.Action
 import org.gradle.api.Project
 
+/**
+ * Service class for handling authentication related functionality.
+ */
 class AuthService extends BaseService {
 
+    /**
+     * Default project path for the authentication service.
+     */
     static final String DEFAULT_PROJECT_PATH = ':com.etendorx.auth'
     static final String DEFAULT_NAME = 'auth'
     static final String DEFAULT_PORT = '8094'
@@ -16,6 +22,9 @@ class AuthService extends BaseService {
     static final String DEFAULT_VERSION = 'latest.integration'
     static final String DEFAULT_CONFIG = 'auth'
 
+    /**
+     * Default action for the authentication service.
+     */
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         EtendoRxPluginExtension extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
 
@@ -33,10 +42,17 @@ class AuthService extends BaseService {
         ]
     }
 
+    /**
+     * Constructor for AuthService.
+     * @param mainProject The main project instance.
+     */
     AuthService(Project mainProject) {
         super(mainProject, DEFAULT_ACTION)
     }
 
+    /**
+     * Configures the extension action for the authentication service.
+     */
     @Override
     void configureExtensionAction() {
         GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).authAction)

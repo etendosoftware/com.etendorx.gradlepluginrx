@@ -8,8 +8,14 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.process.JavaExecSpec
 
+/**
+ * This class represents the DAS service.
+ */
 class DasService extends BaseService {
 
+    /**
+     * Default project path for DAS service.
+     */
     static final String DEFAULT_PROJECT_PATH = ':com.etendorx.das'
     static final String DEFAULT_NAME = 'das'
     static final String DEFAULT_PORT = '8092'
@@ -18,6 +24,9 @@ class DasService extends BaseService {
     static final String DEFAULT_VERSION = 'latest.integration'
     static final String DEFAULT_CONFIG = 'das'
 
+    /**
+     * List of dynamic subprojects.
+     */
     static final List<String> DYNAMIC_SUBPROJECTS = [
             ':com.etendorx.entities',
             ':com.etendorx.grpc.common'
@@ -25,6 +34,9 @@ class DasService extends BaseService {
 
     static String version;
 
+    /**
+     * Default action for the DAS service.
+     */
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         EtendoRxPluginExtension extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
 
@@ -51,16 +63,25 @@ class DasService extends BaseService {
 
     List<Task> dynamicTasks = new ArrayList<>()
 
+    /**
+     * Constructor for DasService.
+     */
     DasService(Project mainProject) {
         super(mainProject, DEFAULT_ACTION)
     }
 
+    /**
+     * Configures the extension action.
+     */
     @Override
     void configureExtensionAction() {
         GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).dasAction)
         this.subProject = this.mainProject.findProject(this.subprojectPath)
     }
 
+    /**
+     * Loads dynamic tasks.
+     */
     void loadDynamicTasks() {
         this.subprojectsPath.each {
             def subProject = this.mainProject.findProject(it)
@@ -72,6 +93,9 @@ class DasService extends BaseService {
         }
     }
 
+    /**
+     * Loads build tasks.
+     */
     @Override
     Optional<List<Task>> loadBuildTasks() {
         this.loadDynamicTasks()
@@ -86,6 +110,9 @@ class DasService extends BaseService {
         return Optional.of(jarTasks)
     }
 
+    /**
+     * Loads the Java exec action.
+     */
     @Override
     void loadJavaExecAction() {
         super.loadClasspathFiles()

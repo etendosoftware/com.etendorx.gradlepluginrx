@@ -7,8 +7,14 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
 
+/**
+ * Represents the ConfigServer service.
+ */
 class ConfigServer extends BaseService {
 
+    /**
+     * Default project path for the ConfigServer.
+     */
     static final String DEFAULT_PROJECT_PATH = ':com.etendorx.configserver'
     static final String DEFAULT_NAME = 'config'
     static final String DEFAULT_PORT = '8888'
@@ -17,6 +23,9 @@ class ConfigServer extends BaseService {
     static final String DEFAULT_VERSION = 'latest.integration'
     static final String DEFAULT_CONFIG = 'configserver'
 
+    /**
+     * Default action for the ConfigServer service.
+     */
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         EtendoRxPluginExtension extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
 
@@ -40,15 +49,26 @@ class ConfigServer extends BaseService {
 
     TaskProvider runServiceTask
 
+    /**
+     * Constructs a new ConfigServer instance.
+     *
+     * @param mainProject The main project.
+     */
     ConfigServer(Project mainProject) {
         super(mainProject, DEFAULT_ACTION)
     }
 
+    /**
+     * Loads the ConfigServer service.
+     */
     void load() {
         loadJavaExecAction()
     }
 
     @Override
+    /**
+     * Configures the extension action for the ConfigServer.
+     */
     void configureExtensionAction() {
         GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).configServerAction)
         this.subProject = this.mainProject.findProject(this.subprojectPath)

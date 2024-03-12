@@ -9,31 +9,41 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskProvider
 
+/**
+ * Represents a container for code generation tasks.
+ */
 class CodeGenContainer extends AbstractExecutableJar {
 
+    /**
+     * Default project path for code generation.
+     */
     static final String DEFAULT_PROJECT_PATH = ':com.etendorx.generate_entities'
     static final String DEFAULT_GROUP = 'com.etendorx'
     static final String DEFAULT_ARTIFACT = 'generate-entities'
     static final String DEFAULT_VERSION = 'latest.integration'
     static final String DEFAULT_CONFIG = 'entities'
 
+    // Constants for tasks and classes
     static final String ENTITIES_TASK = 'generate.entities'
     static final String TEST_ENTITIES_TASK = 'generate.entities.test'
     static final String MAIN_CLASS = 'com.etendorx.gen.GenerateEntitiesApplication'
     static final String MAIN_CLASS_JAR = 'org.springframework.boot.loader.JarLauncher'
 
+    // Properties for command line parameters
     static final String GENERATE_PROPERTY = 'generate'
     static final String EXCLUDED_MODULES_PROPERTY = 'excludedModules'
     static final String INCLUDED_MODULES_PROPERTY = 'includedModules'
 
     static String version;
 
+    // Map of properties for command line arguments
     Map propertiesMap = [
             GENERATE_PROPERTY        : '-g',
             EXCLUDED_MODULES_PROPERTY: '-e',
             INCLUDED_MODULES_PROPERTY: '-i'
     ]
 
+    // Default action for executable
     static final Action<AbstractExecutableJar> DEFAULT_ACTION = { AbstractExecutableJar executable ->
         executable.subprojectPath = DEFAULT_PROJECT_PATH
         executable.dependencyGroup = DEFAULT_GROUP
@@ -49,6 +59,10 @@ class CodeGenContainer extends AbstractExecutableJar {
 
     TaskProvider entitiesTask
 
+    /**
+     * Constructor for CodeGenContainer.
+     * @param mainProject The main project.
+     */
     CodeGenContainer(Project mainProject) {
         super(mainProject)
         this.buildTaskName = 'build'
@@ -56,6 +70,9 @@ class CodeGenContainer extends AbstractExecutableJar {
         configureExecutable()
     }
 
+    /**
+     * Configures the executable.
+     */
     void configureExecutable() {
         ExecutableUtils.configureExecutable(this.mainProject, this, DEFAULT_ACTION)
     }
@@ -66,6 +83,9 @@ class CodeGenContainer extends AbstractExecutableJar {
         this.subProject = this.mainProject.findProject(this.subprojectPath)
     }
 
+    /**
+     * Loads the entities.
+     */
     void load() {
         this.registerEntitiesTask()
         this.registerTestEntitiesTask()
@@ -79,6 +99,10 @@ class CodeGenContainer extends AbstractExecutableJar {
         }
     }
 
+    /**
+     * Loads command line parameters.
+     * @return List of command line parameters.
+     */
     List<String> loadCommandLineParameters() {
         List<String> commands = []
         propertiesMap.each { Map.Entry<String, String> entry ->
@@ -90,6 +114,11 @@ class CodeGenContainer extends AbstractExecutableJar {
         return commands
     }
 
+    /**
+     * Builds the entities task.
+     * @param taskName The name of the task.
+     * @param extraParameters Extra parameters for the task.
+     */
     void generateEntitiesTaskBuilder(String taskName, List<String> extraParameters) {
         this.mainProject.tasks.register("configure${taskName}") {
             doLast {
@@ -133,10 +162,16 @@ class CodeGenContainer extends AbstractExecutableJar {
         }
     }
 
+    /**
+     * Registers the entities task.
+     */
     void registerEntitiesTask() {
         generateEntitiesTaskBuilder(ENTITIES_TASK, null)
     }
 
+    /**
+     * Registers the test entities task.
+     */
     void registerTestEntitiesTask() {
         generateEntitiesTaskBuilder(TEST_ENTITIES_TASK, ['--test'])
     }

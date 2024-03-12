@@ -2,8 +2,16 @@ package com.etendorx.codegen
 
 import org.gradle.api.Project
 
+/**
+ * This class is responsible for loading the code generation process.
+ */
 class CodeGenLoader {
 
+    /**
+     * Loads the code generation process for the given project.
+     *
+     * @param project The Gradle project to load the code generation for.
+     */
     static void load(Project project) {
         new CodeGenCleanContainer(project).load()
         new CodeGenContainer(project).load()

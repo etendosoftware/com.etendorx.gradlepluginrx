@@ -6,8 +6,14 @@ import com.etendorx.rx.services.base.BaseService
 import org.gradle.api.Action
 import org.gradle.api.Project
 
+/**
+ * Represents the EdgeService class that extends BaseService.
+ */
 class EdgeService extends BaseService {
 
+    /**
+     * Default project path for the Edge service.
+     */
     static final String DEFAULT_PROJECT_PATH = ':com.etendorx.edge'
     static final String DEFAULT_NAME = 'edge'
     static final String DEFAULT_PORT = '8096'
@@ -16,6 +22,9 @@ class EdgeService extends BaseService {
     static final String DEFAULT_VERSION = 'latest.integration'
     static final String DEFAULT_CONFIG = 'edge'
 
+    /**
+     * Default action for the EdgeService.
+     */
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         EtendoRxPluginExtension extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
 
@@ -33,10 +42,17 @@ class EdgeService extends BaseService {
         ]
     }
 
+    /**
+     * Constructor for EdgeService.
+     * @param mainProject The main project.
+     */
     EdgeService(Project mainProject) {
         super(mainProject, DEFAULT_ACTION)
     }
 
+    /**
+     * Configures the extension action for EdgeService.
+     */
     @Override
     void configureExtensionAction() {
         GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).edgeAction)

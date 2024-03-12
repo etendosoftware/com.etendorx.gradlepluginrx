@@ -3,6 +3,9 @@ package com.etendorx.rx.services.base
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
 
+/**
+ * Abstract class representing a base service
+ */
 @CompileStatic
 abstract class AbstractBaseService extends AbstractExecutableJar {
 
@@ -21,14 +24,26 @@ abstract class AbstractBaseService extends AbstractExecutableJar {
      */
     List<String> subprojectsPath = []
 
+    /**
+     * Constructor for AbstractBaseService
+     * @param mainProject The main project
+     */
     AbstractBaseService(Project mainProject) {
         super(mainProject)
     }
 
+    /**
+     * Add subproject paths to the service
+     * @param subprojectPath List of subproject paths
+     */
     void addSubprojectsPath(List<String> subprojectPath) {
         this.subprojectsPath.addAll(subprojectPath)
     }
 
+    /**
+     * Override toString method
+     * @return String representation of the service
+     */
     @Override
     String toString() {
         return """

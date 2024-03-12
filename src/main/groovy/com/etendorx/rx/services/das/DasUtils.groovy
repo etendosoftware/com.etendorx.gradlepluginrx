@@ -16,6 +16,11 @@ class DasUtils {
 
     /**
      * Creates a custom fat jar task for the given subProject
+     * @param mainProject The main project
+     * @param subProject The sub project
+     * @param jarName The name of the jar
+     * @param taskName The name of the task
+     * @return Optional<TaskProvider<? extends Task>> The task provider
      */
     static Optional<TaskProvider<? extends Task>> createCustomFatJarTask(Project mainProject, Project subProject,
                                                                          String jarName, String taskName = 'customFatJar') {
@@ -47,6 +52,8 @@ class DasUtils {
 
     /**
      * Collects files from the output of tasks
+     * @param tasks The list of tasks
+     * @return Collection<File> The collection of files
      */
     static Collection<File> collectFilesFromTasks(List<Task> tasks) {
         Set<File> files = []
@@ -58,6 +65,8 @@ class DasUtils {
 
     /**
      * Converts a collection of files to a loader path string
+     * @param files The collection of files
+     * @return String The loader path string
      */
     static String filesToLoaderPath(Collection<File> files) {
         return files*.absolutePath.join(',')
@@ -65,6 +74,8 @@ class DasUtils {
 
     /**
      * Adds dynamic dependencies based on build.gradle files in subdirectories
+     * @param mainProject The main project
+     * @return List<String> The list of dynamic dependencies
      */
     static List<String> addDynamicDependencies(Project mainProject) {
         List<String> dynamicDependencies = [] as LinkedList
@@ -84,6 +95,9 @@ class DasUtils {
 
     /**
      * Finds subdirectories containing a specific file
+     * @param startDir The starting directory
+     * @param fileName The name of the file
+     * @return List<File> The list of subdirectories
      */
     static List<File> findSubDirectoriesWithFile(File startDir, String fileName) {
         List<File> subDirs = []
@@ -97,6 +111,8 @@ class DasUtils {
 
     /**
      * Checks if a properties file includes a specific dependency
+     * @param propertiesFile The properties file
+     * @return boolean True if the dependency is included, false otherwise
      */
     static boolean includeInDasDependencies(File propertiesFile) {
         Properties properties = new Properties()
