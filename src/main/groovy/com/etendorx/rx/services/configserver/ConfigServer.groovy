@@ -9,13 +9,13 @@ import org.gradle.api.tasks.TaskProvider
 
 class ConfigServer extends BaseService {
 
-    static final String DEFAULT_PROJECT_PATH = ":com.etendorx.configserver"
-    static final String DEFAULT_NAME = "config"
-    static final String DEFAULT_PORT = "8888"
-    static final String DEFAULT_GROUP = "com.etendorx"
-    static final String DEFAULT_ARTIFACT = "configserver"
-    static final String DEFAULT_VERSION = "latest.integration"
-    static final String DEFAULT_CONFIG = "configserver"
+    static final String DEFAULT_PROJECT_PATH = ':com.etendorx.configserver'
+    static final String DEFAULT_NAME = 'config'
+    static final String DEFAULT_PORT = '8888'
+    static final String DEFAULT_GROUP = 'com.etendorx'
+    static final String DEFAULT_ARTIFACT = 'configserver'
+    static final String DEFAULT_VERSION = 'latest.integration'
+    static final String DEFAULT_CONFIG = 'configserver'
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
@@ -26,15 +26,15 @@ class ConfigServer extends BaseService {
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
         var version = extension.version
-        if(version == null) {
+        if (version == null) {
             version = DEFAULT_VERSION
         }
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([
-                'SPRING_PROFILES_ACTIVE'                           : "native",
-                "SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS": "file://${service.mainProject.projectDir.absolutePath}/rxconfig"
+                'SPRING_PROFILES_ACTIVE'                           : 'native',
+                'SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS': "file://${service.mainProject.projectDir.absolutePath}/rxconfig"
         ])
     }
 

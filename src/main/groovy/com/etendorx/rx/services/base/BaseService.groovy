@@ -15,6 +15,10 @@ class BaseService extends AbstractBaseService {
         super(mainProject)
     }
 
+    @Override
+    void configureExtensionAction() {
+    }
+
     BaseService(Project mainProject, Action defaultAction) {
         this(mainProject)
         this.buildTaskName = BOOT_JAR_TASK

@@ -17,13 +17,13 @@ abstract class AbstractBaseService extends AbstractExecutableJar {
     /**
      * List of dynamic subproject paths to add to the DAS classpath service
      */
-    List<String> subprojectsPath = new ArrayList<>()
+    List<String> subprojectsPath = []
 
     AbstractBaseService(Project mainProject) {
         super(mainProject)
     }
 
-    void subprojectsPath(List<String> subprojectPath) {
+    void addSubprojectsPath(List<String> subprojectPath) {
         this.subprojectsPath.addAll(subprojectPath)
     }
 
@@ -33,4 +33,5 @@ abstract class AbstractBaseService extends AbstractExecutableJar {
         |* Service name: ${this.serviceName}
         |* Port: ${this.port}${super.toString()}""".stripMargin()
     }
+
 }

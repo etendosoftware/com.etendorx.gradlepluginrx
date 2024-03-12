@@ -1,6 +1,5 @@
 package com.etendorx.rx
 
-
 import com.etendorx.rx.launch.RxLaunch
 import org.gradle.api.Project
 

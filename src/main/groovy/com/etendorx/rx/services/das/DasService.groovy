@@ -10,17 +10,17 @@ import org.gradle.process.JavaExecSpec
 
 class DasService extends BaseService {
 
-    static final String DEFAULT_PROJECT_PATH = ":com.etendorx.das"
-    static final String DEFAULT_NAME = "das"
-    static final String DEFAULT_PORT = "8092"
-    static final String DEFAULT_GROUP = "com.etendorx"
-    static final String DEFAULT_ARTIFACT = "das"
-    static final String DEFAULT_VERSION = "latest.integration"
-    static final String DEFAULT_CONFIG = "das"
+    static final String DEFAULT_PROJECT_PATH = ':com.etendorx.das'
+    static final String DEFAULT_NAME = 'das'
+    static final String DEFAULT_PORT = '8092'
+    static final String DEFAULT_GROUP = 'com.etendorx'
+    static final String DEFAULT_ARTIFACT = 'das'
+    static final String DEFAULT_VERSION = 'latest.integration'
+    static final String DEFAULT_CONFIG = 'das'
 
     static final List<String> DYNAMIC_SUBPROJECTS = [
-            ":com.etendorx.entities",
-            ":com.etendorx.grpc.common"
+            ':com.etendorx.entities',
+            ':com.etendorx.grpc.common'
     ]
 
     static String version;
@@ -103,13 +103,14 @@ class DasService extends BaseService {
         this.javaExecAction = { JavaExecSpec spec ->
             spec.environment this.getEnvironment()
             spec.classpath classpathFiles
-            if(version.startsWith("2.")) {
-                spec.mainClass = "org.springframework.boot.loader.PropertiesLauncher"
+            if(version.startsWith('2.')) {
+                spec.mainClass = 'org.springframework.boot.loader.PropertiesLauncher'
             }
             spec.systemProperties = [
-                    "loader.path": loaderPath
+                    'loader.path': loaderPath
             ]
             spec.jvmArgs = ['-XX:+UseSerialGC']
         }
     }
+
 }

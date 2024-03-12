@@ -55,7 +55,7 @@ abstract class AbstractExecutableJar {
     }
 
     void environment(Map<String, ?> environmentVariables) {
-        this.environment.putAll(environmentVariables);
+        this.environment.putAll(environmentVariables)
     }
 
     String getDependencyName() {
@@ -102,7 +102,7 @@ abstract class AbstractExecutableJar {
     /**
      * This method should be executed when the main project has been evaluated and the extensions are loaded
      */
-    void configureExtensionAction() {}
+    abstract void configureExtensionAction()
 
     String toString() {
         return """

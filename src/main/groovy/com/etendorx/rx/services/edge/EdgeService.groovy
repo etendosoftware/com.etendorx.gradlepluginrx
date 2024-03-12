@@ -8,13 +8,13 @@ import org.gradle.api.Project
 
 class EdgeService extends BaseService {
 
-    static final String DEFAULT_PROJECT_PATH = ":com.etendorx.edge"
-    static final String DEFAULT_NAME = "edge"
-    static final String DEFAULT_PORT = "8096"
-    static final String DEFAULT_GROUP = "com.etendorx"
-    static final String DEFAULT_ARTIFACT = "edge"
-    static final String DEFAULT_VERSION = "latest.integration"
-    static final String DEFAULT_CONFIG = "edge"
+    static final String DEFAULT_PROJECT_PATH = ':com.etendorx.edge'
+    static final String DEFAULT_NAME = 'edge'
+    static final String DEFAULT_PORT = '8096'
+    static final String DEFAULT_GROUP = 'com.etendorx'
+    static final String DEFAULT_ARTIFACT = 'edge'
+    static final String DEFAULT_VERSION = 'latest.integration'
+    static final String DEFAULT_CONFIG = 'edge'
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
@@ -24,16 +24,13 @@ class EdgeService extends BaseService {
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        var version = extension.version
-        if(version == null) {
-            version = DEFAULT_VERSION
-        }
+        String version = extension.version ?: DEFAULT_VERSION
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
-        service.setEnvironment([
+        service.environment = [
                 'SPRING_PROFILES_ACTIVE': 'dev'
-        ])
+        ]
     }
 
     EdgeService(Project mainProject) {
@@ -45,5 +42,4 @@ class EdgeService extends BaseService {
         GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).edgeAction)
         this.subProject = this.mainProject.findProject(this.subprojectPath)
     }
-
 }

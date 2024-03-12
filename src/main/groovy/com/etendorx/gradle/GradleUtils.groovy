@@ -3,6 +3,7 @@ package com.etendorx.gradle
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.TaskProvider
 
@@ -12,7 +13,7 @@ class GradleUtils {
         TaskProvider<Task> task = null
         try {
             task = subProject.tasks.named(taskName)
-        } catch (Exception e) {
+        } catch (UnknownTaskException e) {
             mainProject.logger.log(logLevel, "* The task '${taskName}' from '${subProject}' could not be obtained")
             mainProject.logger.log(logLevel, "* MESSAGE: ${e.getMessage()}")
         }

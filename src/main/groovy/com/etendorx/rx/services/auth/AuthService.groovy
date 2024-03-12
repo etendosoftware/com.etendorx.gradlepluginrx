@@ -8,13 +8,13 @@ import org.gradle.api.Project
 
 class AuthService extends BaseService {
 
-    static final String DEFAULT_PROJECT_PATH = ":com.etendorx.auth"
-    static final String DEFAULT_NAME = "auth"
-    static final String DEFAULT_PORT = "8094"
-    static final String DEFAULT_GROUP = "com.etendorx"
-    static final String DEFAULT_ARTIFACT = "auth"
-    static final String DEFAULT_VERSION = "latest.integration"
-    static final String DEFAULT_CONFIG = "auth"
+    static final String DEFAULT_PROJECT_PATH = ':com.etendorx.auth'
+    static final String DEFAULT_NAME = 'auth'
+    static final String DEFAULT_PORT = '8094'
+    static final String DEFAULT_GROUP = 'com.etendorx'
+    static final String DEFAULT_ARTIFACT = 'auth'
+    static final String DEFAULT_VERSION = 'latest.integration'
+    static final String DEFAULT_CONFIG = 'auth'
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
@@ -24,16 +24,13 @@ class AuthService extends BaseService {
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        var version = extension.version
-        if(version == null) {
-            version = DEFAULT_VERSION
-        }
+        String version = extension.version ?: DEFAULT_VERSION
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
-        service.setEnvironment([
+        service.environment = [
                 'SPRING_PROFILES_ACTIVE': 'dev'
-        ])
+        ]
     }
 
     AuthService(Project mainProject) {

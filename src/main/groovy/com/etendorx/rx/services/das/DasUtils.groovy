@@ -9,11 +9,10 @@ import org.gradle.jvm.tasks.Jar
 
 class DasUtils {
 
-    // The name of the configuration from where obtain the files to create the fat JAR
-    static final String CONFIGURATION_CONTAINER = "bundle"
+    static final String CONFIGURATION_CONTAINER = 'bundle'
 
     static Optional<TaskProvider<? extends Task>> createCustomFatJarTask(Project mainProject, Project subProject,
-                                                                         String jarName, String taskName = "customFatJar") {
+                                                                         String jarName, String taskName = 'customFatJar') {
         if (subProject) {
             def task = GradleUtils.getTaskByName(mainProject, subProject, taskName)
             if (task != null) {
@@ -49,28 +48,28 @@ class DasUtils {
     }
 
     static String filesToLoaderPath(Collection<File> files) {
-        return files*.absolutePath.toList().join(",")
+        return files*.absolutePath.join(',')
     }
 
     static List<String> addDynamicDependencies(Project mainProject) {
-        List<String> dynamicDependencies = new LinkedList<>();
+        List<String> dynamicDependencies = [] as LinkedList
 
         def directories = [mainProject.getRootProject().projectDir.absolutePath]
         directories.each { dir ->
-            var fileToFind = "build.gradle"
-            def subDirs = findSubDirectoriesWithFile(new File(dir), fileToFind)
-            subDirs.each { subDir ->
+            String fileToFind = 'build.gradle'
+            List<File> subDirs = findSubDirectoriesWithFile(new File(dir), fileToFind)
+            subDirs.each { File subDir ->
                 if (includeInDasDependencies(new File(subDir, fileToFind))) {
-                    dynamicDependencies.add(":${subDir.name}")
+                    dynamicDependencies.add(':' + subDir.name)
                 }
             }
         }
-        return dynamicDependencies;
+        return dynamicDependencies
     }
 
     static List<File> findSubDirectoriesWithFile(File startDir, String fileName) {
         def subDirs = []
-        startDir.eachDirRecurse { dir ->
+        startDir.eachDirRecurse { File dir ->
             if (new File(dir, fileName).isFile()) {
                 subDirs << dir
             }

@@ -51,3 +51,5 @@ Thumbs.db
 gradle.properties
 /.gradle/
 /build/
+
+/.scannerwork/

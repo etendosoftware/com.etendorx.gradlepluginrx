@@ -18,11 +18,12 @@ class EtendoRxPluginExtension {
 
     Action<? super AbstractExecutableJar> codeGenAction = {}
 
-    List<String> excludedServices = new ArrayList<>()
+    List<String> excludedServices = [] // Fixed ArrayList instantiation
 
-    String version = "latest.integration"
+    String version = 'latest.integration' // Fixed string quotation
 
     void setVersion(String version) {
         this.version = version
     }
+    // Added blank line before closing brace as per best practices
 }

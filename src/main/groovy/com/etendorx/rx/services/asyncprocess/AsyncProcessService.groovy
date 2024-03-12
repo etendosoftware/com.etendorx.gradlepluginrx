@@ -8,13 +8,13 @@ import org.gradle.api.Project
 
 class AsyncProcessService extends BaseService {
 
-    static final String DEFAULT_PROJECT_PATH = ":com.etendorx.asyncprocess"
-    static final String DEFAULT_NAME = "async"
-    static final String DEFAULT_PORT = "8099"
-    static final String DEFAULT_GROUP = "com.etendorx"
-    static final String DEFAULT_ARTIFACT = "asyncprocess"
-    static final String DEFAULT_VERSION = "latest.integration"
-    static final String DEFAULT_CONFIG = "asyncprocess"
+    static final String DEFAULT_PROJECT_PATH = ':com.etendorx.asyncprocess'
+    static final String DEFAULT_NAME = 'async'
+    static final String DEFAULT_PORT = '8099'
+    static final String DEFAULT_GROUP = 'com.etendorx'
+    static final String DEFAULT_ARTIFACT = 'asyncprocess'
+    static final String DEFAULT_VERSION = 'latest.integration'
+    static final String DEFAULT_CONFIG = 'asyncprocess'
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
         def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
@@ -25,7 +25,7 @@ class AsyncProcessService extends BaseService {
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
         var version = extension.version
-        if(version == null) {
+        if (version == null) {
             version = DEFAULT_VERSION
         }
         service.dependencyVersion = version
