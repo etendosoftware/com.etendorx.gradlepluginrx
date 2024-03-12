@@ -10,8 +10,8 @@ class CodeGenLoader {
 
         project.tasks.getByName(CodeGenContainer.ENTITIES_TASK).dependsOn({
             return [
-                    ":" + CodeGenContainer.DEFAULT_GROUP + "." + CodeGenContainer.DEFAULT_CONFIG + ":clean",
-                    project.tasks.findByName(CodeGenCleanContainer.CLEAN_TASK)
+                    ':' + CodeGenContainer.DEFAULT_GROUP + '.' + CodeGenContainer.DEFAULT_CONFIG + ':clean',
+                    project.tasks.findByName(CodeGenCleanContainer.CLEAN_TASK),
             ]
         })
         project.tasks.getByName(CodeGenContainer.TEST_ENTITIES_TASK).dependsOn({
