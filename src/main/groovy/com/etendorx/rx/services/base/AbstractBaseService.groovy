@@ -1,7 +1,9 @@
 package com.etendorx.rx.services.base
 
+import groovy.transform.CompileStatic
 import org.gradle.api.Project
 
+@CompileStatic
 abstract class AbstractBaseService extends AbstractExecutableJar {
 
     /**

@@ -7,7 +7,8 @@ import org.gradle.process.JavaExecSpec
 import java.time.LocalDate
 
 class BaseService extends AbstractBaseService {
-    static final String BOOT_JAR_TASK = "bootJar"
+
+    static final String BOOT_JAR_TASK = 'bootJar'
 
     Action<? super JavaExecSpec> javaExecAction
 
@@ -28,15 +29,15 @@ class BaseService extends AbstractBaseService {
     }
 
     void configureLogs() {
-        File defaultLogDir = new File(this.mainProject.projectDir, "logs")
+        File defaultLogDir = new File(this.mainProject.projectDir, 'logs')
 
         if (!defaultLogDir.exists() || !defaultLogDir.isDirectory()) {
-            defaultLogDir = new File("/var/log")
+            defaultLogDir = new File('/var/log')
         }
 
         this.environment([
-                "CONSOLE_LOG_PATTERN": "",
-                "LOGGING_FILE_NAME"  : "${defaultLogDir.absolutePath}${File.separator}${this.serviceName}-${LocalDate.now().toString()}.log"
+                'CONSOLE_LOG_PATTERN': '',
+                'LOGGING_FILE_NAME'  : "${defaultLogDir.absolutePath}${File.separator}${this.serviceName}-${LocalDate.now().toString()}.log"
         ])
     }
 
@@ -44,7 +45,7 @@ class BaseService extends AbstractBaseService {
         this.loadClasspathFiles()
 
         // Trick to obtain the files from the 'ConfigurableFileCollection'
-        // Before the javaExecAcion is executed from a thread.
+        // Before the javaExecAction is executed from a thread.
         // This solves the problem of a configuration not resolved from a thread not managed by Gradle.
         def classpathFiles = this.fileCollectionClasspath.getFiles()
 

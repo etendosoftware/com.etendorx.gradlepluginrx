@@ -89,8 +89,8 @@ abstract class AbstractExecutableJar {
 
     Optional<Task> loadDefaultBuildTask() {
         if (this.subProject != null && buildTaskName) {
-            def buildTask = this.subProject.tasks.findByName(buildTaskName)
-            if (buildTask) {
+            Task buildTask = this.subProject.tasks.findByName(buildTaskName)
+            if (buildTask != null) {
                 return Optional.of(buildTask)
             } else {
                 this.mainProject.logger.info("The ${this.subProject} is missing the '${buildTaskName}' task.")

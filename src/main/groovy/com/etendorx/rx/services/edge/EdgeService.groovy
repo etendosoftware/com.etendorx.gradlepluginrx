@@ -17,7 +17,7 @@ class EdgeService extends BaseService {
     static final String DEFAULT_CONFIG = 'edge'
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
-        def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
+        EtendoRxPluginExtension extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
 
         service.subprojectPath = DEFAULT_PROJECT_PATH
         service.serviceName = DEFAULT_NAME

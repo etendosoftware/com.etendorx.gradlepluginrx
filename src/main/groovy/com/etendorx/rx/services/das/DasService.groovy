@@ -26,7 +26,7 @@ class DasService extends BaseService {
     static String version;
 
     static final Action<BaseService> DEFAULT_ACTION = { BaseService service ->
-        def extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
+        EtendoRxPluginExtension extension = service.mainProject.extensions.findByType(EtendoRxPluginExtension)
 
         service.subprojectPath = DEFAULT_PROJECT_PATH
         service.serviceName = DEFAULT_NAME
@@ -34,15 +34,15 @@ class DasService extends BaseService {
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
         version = extension.version
-        if(version == null) {
+        if (version == null) {
             version = DEFAULT_VERSION
         }
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)
         service.setEnvironment([
-                'SPRING_PROFILES_ACTIVE': 'dev',
-                'SPRING_CONFIG_IMPORT': 'configserver:http://localhost:8888',
+                'SPRING_PROFILES_ACTIVE' : 'dev',
+                'SPRING_CONFIG_IMPORT'   : 'configserver:http://localhost:8888',
                 'SPRING_APPLICATION_NAME': 'das'
         ])
         service.subprojectsPath = DYNAMIC_SUBPROJECTS
@@ -103,7 +103,7 @@ class DasService extends BaseService {
         this.javaExecAction = { JavaExecSpec spec ->
             spec.environment this.getEnvironment()
             spec.classpath classpathFiles
-            if(version.startsWith('2.')) {
+            if (version.startsWith('2.')) {
                 spec.mainClass = 'org.springframework.boot.loader.PropertiesLauncher'
             }
             spec.systemProperties = [

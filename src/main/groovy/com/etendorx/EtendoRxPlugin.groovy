@@ -13,15 +13,15 @@ class EtendoRxPlugin implements Plugin<Project> {
 
     static final String PLUGIN_VERSION = '1.1.0'
     static final String EXTENSION_NAME = 'etendorx'
+    static final String LINE = '**********************************************'
+
+    private Project project
 
     @Override
     void apply(Project project) {
-
-        System.out.println('**********************************************')
-        System.out.println('* ETENDO RX PLUGIN VERSION: ' + PLUGIN_VERSION)
-        System.out.println('**********************************************')
-
-        def extension = project.extensions.create(EXTENSION_NAME, EtendoRxPluginExtension)
+        logInfo()
+        project.extensions.create(EXTENSION_NAME, EtendoRxPluginExtension)
+        this.project = project
         project.getPluginManager().apply(JavaBasePlugin)
         project.getPluginManager().apply(PublishingPlugin)
         project.getPluginManager().apply(MavenPublishPlugin)
@@ -29,7 +29,11 @@ class EtendoRxPlugin implements Plugin<Project> {
 
         CodeGenLoader.load(project)
         RxLoader.load(project)
-
     }
 
+    private void logInfo() {
+        project.logger.info(LINE)
+        project.logger.info('* ETENDO RX PLUGIN VERSION: ' + PLUGIN_VERSION)
+        project.logger.info(LINE)
+    }
 }

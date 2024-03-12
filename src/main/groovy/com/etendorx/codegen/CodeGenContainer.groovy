@@ -80,21 +80,21 @@ class CodeGenContainer extends AbstractExecutableJar {
     }
 
     List<String> loadCommandLineParameters() {
-        def commands = []
+        List<String> commands = []
         propertiesMap.each { Map.Entry<String, String> entry ->
-            def property = mainProject.findProperty(entry.key)
+            String property = mainProject.findProperty(entry.key) as String
             if (property != null) {
-                commands += [entry.value, property as String]
+                commands += [entry.value, property]
             }
         }
         return commands
     }
 
-    void generateEntitiesTaskBuilder(taskName , List<String> extraParameters) {
+    void generateEntitiesTaskBuilder(String taskName, List<String> extraParameters) {
         this.mainProject.tasks.register("configure${taskName}") {
             doLast {
                 JavaExec task = this.mainProject.tasks.findByName(taskName) as JavaExec
-                def commandLineParameters = loadCommandLineParameters()
+                List<String> commandLineParameters = loadCommandLineParameters()
                 if (extraParameters != null) {
                     commandLineParameters.addAll(extraParameters)
                 }
@@ -115,10 +115,10 @@ class CodeGenContainer extends AbstractExecutableJar {
 
         this.entitiesTask = this.mainProject.tasks.register(taskName, JavaExec) {
             dependsOn {
-                def tasks = [this.mainProject.tasks.findByName("configure${taskName}")]
+                List tasks = [this.mainProject.tasks.findByName("configure${taskName}")]
                 this.configureExtensionAction()
 
-                def buildTasks = this.loadBuildTasks()
+                List buildTasks = this.loadBuildTasks()
                 if (buildTasks.isPresent()) {
                     tasks.addAll(buildTasks.get())
                 }
@@ -140,5 +140,4 @@ class CodeGenContainer extends AbstractExecutableJar {
     void registerTestEntitiesTask() {
         generateEntitiesTaskBuilder(TEST_ENTITIES_TASK, ['--test'])
     }
-
 }

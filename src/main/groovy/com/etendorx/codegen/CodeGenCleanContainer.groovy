@@ -12,14 +12,14 @@ class CodeGenCleanContainer {
     final static String SRC_GEN = 'src-gen'
     final static String SRC = 'src'
 
-    Project mainProject
-    TaskProvider cleanTask
-
     final static List DIRECTORIES_TO_CLEAN = [
             [dir: 'modules', folder: SRC_GEN],
             [dir: 'modules_gen', folder: SRC],
-            [dir: 'modules_core', folder: SRC_GEN]
+            [dir: 'modules_core', folder: SRC_GEN],
     ]
+
+    Project mainProject
+    TaskProvider cleanTask
 
     CodeGenCleanContainer(Project mainProject) {
         this.mainProject = mainProject
