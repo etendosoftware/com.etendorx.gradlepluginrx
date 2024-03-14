@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 def MAIN = "main"
@@ -77,6 +78,21 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
 task upgradePluginVersion() {
     final String MAJOR = 'major'
     final String MINOR = 'minor'
@@ -130,3 +146,5 @@ gradlePlugin {
         }
     }
 }
+
+

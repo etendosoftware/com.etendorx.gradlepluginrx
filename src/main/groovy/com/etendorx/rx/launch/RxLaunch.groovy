@@ -149,9 +149,11 @@ class RxLaunch {
     }
 
     void startService(BaseService service) {
-        Thread.start {
-            out.withStyle(StyledTextOutput.Style.Info).println("Starting service: ${service.serviceName}")
-            this.mainProject.javaexec(service.javaExecAction)
+        if (service != null && service.javaExecAction != null) {
+            Thread.start {
+                out.withStyle(StyledTextOutput.Style.Info).println("Starting service: ${service.serviceName}")
+                this.mainProject.javaexec(service.javaExecAction)
+            }
         }
     }
 

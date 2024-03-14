@@ -57,10 +57,12 @@ class DasService extends BaseService {
     void loadDynamicTasks() {
         this.subprojectsPath.each {
             def subProject = this.mainProject.findProject(it)
-            def taskOptional = DasUtils.createCustomFatJarTask(this.mainProject,
-                    subProject, "${subProject.name}-fatjar")
-            if (taskOptional.isPresent()) {
-                this.dynamicTasks.add(taskOptional.get().get())
+            if (subProject != null) {
+                def taskOptional = DasUtils.createCustomFatJarTask(this.mainProject,
+                        subProject, "${subProject.name}-fatjar")
+                if (taskOptional.isPresent()) {
+                    this.dynamicTasks.add(taskOptional.get().get())
+                }
             }
         }
     }
