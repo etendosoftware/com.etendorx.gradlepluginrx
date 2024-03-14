@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 def MAIN = "main"
@@ -128,5 +129,20 @@ gradlePlugin {
             id = "com.etendorx.gradlepluginrx"
             implementationClass = "com.etendorx.EtendoRxPlugin"
         }
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+test {
+    finalizedBy jacocoTestReport // Ejecuta la tarea de cobertura después de las pruebas
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true // Habilita el reporte en formato XML para SonarQube
+        html.required = true // Habilita el reporte HTML para verlo localmente si es necesario
     }
 }
