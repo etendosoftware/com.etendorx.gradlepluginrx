@@ -49,6 +49,7 @@ class RxLaunch {
     }
 
     void loadServicesToExclude() {
+        this.servicesToExclude.clear()
         String excludeServices = this.mainProject.findProperty(EXCLUDE_SERVICES_PROPERTY)
         if (excludeServices) {
             this.servicesToExclude.addAll(excludeServices.split(","))
@@ -56,7 +57,10 @@ class RxLaunch {
     }
 
     List<BaseService> configureServicesToRun() {
-        this.servicesToExclude.addAll(this.mainProject.extensions.findByType(EtendoRxPluginExtension).excludedServices)
+        def etendoRxPluginExtension = this.mainProject.extensions.findByType(EtendoRxPluginExtension)
+        if (etendoRxPluginExtension != null) {
+            this.servicesToExclude.addAll(etendoRxPluginExtension.excludedServices)
+        }
 
         def servicesToRun = services.stream().filter({
             !(it.serviceName in this.servicesToExclude)
