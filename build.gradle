@@ -64,6 +64,12 @@ publishing {
 dependencies {
     implementation gradleApi()
     testImplementation gradleTestKit()
+
+    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation( "com.athaydes:spock-reports:2.0-groovy-3.0" ) {
+        transitive = false // this avoids affecting your version of Groovy/Spock
+    }
 }
 
 tasks.withType(Test).configureEach {
