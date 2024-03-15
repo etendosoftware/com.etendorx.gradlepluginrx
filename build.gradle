@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 def MAIN = "main"
@@ -64,11 +65,32 @@ publishing {
 dependencies {
     implementation gradleApi()
     testImplementation gradleTestKit()
+
+    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation( "com.athaydes:spock-reports:2.0-groovy-3.0" ) {
+        transitive = false // this avoids affecting your version of Groovy/Spock
+    }
 }
 
 tasks.withType(Test).configureEach {
     // Using JUnitPlatform for running tests
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
 
 task upgradePluginVersion() {
