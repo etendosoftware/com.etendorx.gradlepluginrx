@@ -39,9 +39,10 @@ class AsyncProcessService extends BaseService {
     @Override
     void configureExtensionAction() {
         def extension = mainProject.extensions.findByType(EtendoRxPluginExtension)
-        if(extension != null) {
+        if (extension != null) {
             GradleUtils.runAction(this, extension.asyncProcessAction)
             this.subProject = this.mainProject.findProject(this.subprojectPath)
         }
     }
+
 }

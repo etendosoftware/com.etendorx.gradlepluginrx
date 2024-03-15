@@ -42,4 +42,5 @@ class AuthService extends BaseService {
             this.subProject = this.mainProject.findProject(this.subprojectPath)
         }
     }
+
 }
