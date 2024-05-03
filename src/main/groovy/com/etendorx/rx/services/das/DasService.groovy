@@ -75,8 +75,11 @@ class DasService extends BaseService {
      */
     @Override
     void configureExtensionAction() {
-        GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).dasAction)
-        this.subProject = this.mainProject.findProject(this.subprojectPath)
+        def extension = mainProject.extensions.findByType(EtendoRxPluginExtension)
+        if (extension != null) {
+            GradleUtils.runAction(this, extension.dasAction)
+            this.subProject = this.mainProject.findProject(this.subprojectPath)
+        }
     }
 
     /**
@@ -85,10 +88,12 @@ class DasService extends BaseService {
     void loadDynamicTasks() {
         this.subprojectsPath.each {
             def subProject = this.mainProject.findProject(it)
-            def taskOptional = DasUtils.createCustomFatJarTask(this.mainProject,
-                    subProject, "${subProject.name}-fatjar")
-            if (taskOptional.isPresent()) {
-                this.dynamicTasks.add(taskOptional.get().get())
+            if (subProject != null) {
+                def taskOptional = DasUtils.createCustomFatJarTask(this.mainProject,
+                        subProject, "${subProject.name}-fatjar")
+                if (taskOptional.isPresent()) {
+                    this.dynamicTasks.add(taskOptional.get().get())
+                }
             }
         }
     }

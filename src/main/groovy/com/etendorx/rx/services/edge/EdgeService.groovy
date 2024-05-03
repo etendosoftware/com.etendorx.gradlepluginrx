@@ -55,7 +55,10 @@ class EdgeService extends BaseService {
      */
     @Override
     void configureExtensionAction() {
-        GradleUtils.runAction(this, mainProject.extensions.findByType(EtendoRxPluginExtension).edgeAction)
-        this.subProject = this.mainProject.findProject(this.subprojectPath)
+        def extension = mainProject.extensions.findByType(EtendoRxPluginExtension)
+        if (extension != null) {
+            GradleUtils.runAction(this, extension.edgeAction)
+            this.subProject = this.mainProject.findProject(this.subprojectPath)
+        }
     }
 }

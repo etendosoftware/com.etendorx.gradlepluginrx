@@ -57,6 +57,7 @@ class RxLaunch {
     }
 
     void loadServicesToExclude() {
+        this.servicesToExclude.clear()
         String excludeServices = this.mainProject.findProperty(EXCLUDE_SERVICES_PROPERTY)
         if (excludeServices) {
             this.servicesToExclude.addAll(excludeServices.split(","))
@@ -64,7 +65,10 @@ class RxLaunch {
     }
 
     List<BaseService> configureServicesToRun() {
-        this.servicesToExclude.addAll(this.mainProject.extensions.findByType(EtendoRxPluginExtension).excludedServices)
+        def etendoRxPluginExtension = this.mainProject.extensions.findByType(EtendoRxPluginExtension)
+        if (etendoRxPluginExtension != null) {
+            this.servicesToExclude.addAll(etendoRxPluginExtension.excludedServices)
+        }
 
         def servicesToRun = services.stream().filter({
             !(it.serviceName in this.servicesToExclude)
@@ -179,13 +183,15 @@ class RxLaunch {
     }
 
     void startService(BaseService service) {
-        Thread.start {
-            out.withStyle(StyledTextOutput.Style.Info).println("Starting service: [${service.serviceName}]")
-            try {
-                this.mainProject.javaexec(service.javaExecAction)
-            } catch (ExecException e) {
-                //
-                out.withStyle(StyledTextOutput.Style.Info).println("Warning! [" + service.serviceName + "] finished with non-zero exit value ")
+        if (service != null && service.javaExecAction != null) {
+            Thread.start {
+                out.withStyle(StyledTextOutput.Style.Info).println("Starting service: [${service.serviceName}]")
+                try {
+                    this.mainProject.javaexec(service.javaExecAction)
+                } catch (ExecException e) {
+                    //
+                    out.withStyle(StyledTextOutput.Style.Info).println("Warning! [" + service.serviceName + "] finished with non-zero exit value ")
+                }
             }
         }
     }
