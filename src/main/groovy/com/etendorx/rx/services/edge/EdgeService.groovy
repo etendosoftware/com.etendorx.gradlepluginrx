@@ -33,7 +33,7 @@ class EdgeService extends BaseService {
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        String version = extension.version ?: DEFAULT_VERSION
+        String version = extension?.version ?: DEFAULT_VERSION
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)

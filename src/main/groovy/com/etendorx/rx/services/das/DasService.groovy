@@ -45,10 +45,7 @@ class DasService extends BaseService {
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        version = extension.version
-        if (version == null) {
-            version = DEFAULT_VERSION
-        }
+        version = extension?.version?: DEFAULT_VERSION
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         service.configurationContainer = service.mainProject.configurations.create(DEFAULT_CONFIG)

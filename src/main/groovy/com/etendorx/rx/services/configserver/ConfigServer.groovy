@@ -34,10 +34,7 @@ class ConfigServer extends BaseService {
         service.port = DEFAULT_PORT
         service.dependencyGroup = DEFAULT_GROUP
         service.dependencyArtifact = DEFAULT_ARTIFACT
-        var version = extension.version
-        if (version == null) {
-            version = DEFAULT_VERSION
-        }
+        var version = extension?.version ?: DEFAULT_VERSION
         service.dependencyVersion = version
         service.subProject = service.mainProject.findProject(service.subprojectPath)
         if (service.mainProject.configurations.findByName(DEFAULT_CONFIG) == null) {
