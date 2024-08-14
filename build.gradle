@@ -12,7 +12,7 @@ def PROD = "prod"
 
 final String URL_PROD = "https://maven.pkg.github.com/etendosoftware/com.etendorx.gradlepluginrx"
 final String URL_DEV = "https://repo.futit.cloud/repository/maven-public-snapshots"
-final String PLUGIN_VERSION = "1.2.2"
+final String PLUGIN_VERSION = "1.2.0"
 
 // Default mode
 def mode = DEV
@@ -133,7 +133,7 @@ task upgradePluginVersion() {
 
         //Rewrite EtendoPlugin.groovy file with new value
         def etendoPluginContent = file('src/main/groovy/com/etendorx/EtendoRxPlugin.groovy').text
-        etendoPluginContent = etendoPluginContent.replaceAll(/PLUGIN_VERSION = \"\d+.\d+.\d+\"/, "PLUGIN_VERSION = \"${nextVersion}\"")
+        etendoPluginContent = etendoPluginContent.replaceAll(/PLUGIN_VERSION = \'\d+.\d+.\d+\'/, "PLUGIN_VERSION = '${nextVersion}'")
         file('src/main/groovy/com/etendorx/EtendoRxPlugin.groovy').write(etendoPluginContent)
     }
 }
