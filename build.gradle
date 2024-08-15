@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 def MAIN = "main"
@@ -11,7 +12,7 @@ def PROD = "prod"
 
 final String URL_PROD = "https://maven.pkg.github.com/etendosoftware/com.etendorx.gradlepluginrx"
 final String URL_DEV = "https://repo.futit.cloud/repository/maven-public-snapshots"
-final String PLUGIN_VERSION = "1.2.0"
+final String PLUGIN_VERSION = "2.0.0"
 
 // Default mode
 def mode = DEV
@@ -64,11 +65,32 @@ publishing {
 dependencies {
     implementation gradleApi()
     testImplementation gradleTestKit()
+
+    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation( "com.athaydes:spock-reports:2.0-groovy-3.0" ) {
+        transitive = false // this avoids affecting your version of Groovy/Spock
+    }
 }
 
 tasks.withType(Test).configureEach {
     // Using JUnitPlatform for running tests
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
 
 task upgradePluginVersion() {
@@ -111,7 +133,7 @@ task upgradePluginVersion() {
 
         //Rewrite EtendoPlugin.groovy file with new value
         def etendoPluginContent = file('src/main/groovy/com/etendorx/EtendoRxPlugin.groovy').text
-        etendoPluginContent = etendoPluginContent.replaceAll(/PLUGIN_VERSION = \"\d+.\d+.\d+\"/, "PLUGIN_VERSION = \"${nextVersion}\"")
+        etendoPluginContent = etendoPluginContent.replaceAll(/PLUGIN_VERSION = \'\d+.\d+.\d+\'/, "PLUGIN_VERSION = '${nextVersion}'")
         file('src/main/groovy/com/etendorx/EtendoRxPlugin.groovy').write(etendoPluginContent)
     }
 }
