@@ -147,7 +147,7 @@ class CodeGenContainer extends AbstractExecutableJar {
                 List tasks = [this.mainProject.tasks.findByName("configure${taskName}")]
                 this.configureExtensionAction()
 
-                List buildTasks = this.loadBuildTasks()
+                Optional<List> buildTasks = this.loadBuildTasks()
                 if (buildTasks.isPresent()) {
                     tasks.addAll(buildTasks.get())
                 }
