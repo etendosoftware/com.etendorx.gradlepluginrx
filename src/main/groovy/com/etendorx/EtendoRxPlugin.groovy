@@ -17,7 +17,7 @@ class EtendoRxPlugin implements Plugin<Project> {
     /**
      * The version of the plugin.
      */
-    static final String PLUGIN_VERSION = '1.2.0'
+    static final String PLUGIN_VERSION = '2.0.0'
     static final String EXTENSION_NAME = 'etendorx'
     static final String LINE = '**********************************************'
 
