@@ -7,7 +7,7 @@ pipeline {
     REPO_URL            = 'https://github.com/etendosoftware/com.etendorx.gradlepluginrx'
     REPO_NAME           = 'com.etendorx.gradlepluginrx'
     ACCESS_TOKEN        = credentials('access_token_github')
-    EMAIL_ADDRESS       = credentials('email_builds')
+    EMAIL_ADDRESS       = "lucas.aguirre@smfconsulting.es"//credentials('email_builds')
     CONTEXT_BUILD       = "Plugin RX Tests"
 
 
@@ -139,9 +139,27 @@ spec:
                 org.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=1024m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" > gradle.properties
               """
               sh './gradlew test'
+              publishHTML([
+                  allowMissing: true,
+                  alwaysLinkToLastBuild: false,
+                  keepAll: true,
+                  reportDir: 'build/reports/tests/test',
+                  reportFiles: '*.html',
+                  reportName: 'STANDALONE TESTS REPORT',
+                  reportTitles: ''
+              ])
             } catch (Exception e) {
               currentBuild.result = 'FAILURE'
               error("Tests failed: ${e.message}")
+              publishHTML([
+                  allowMissing: false,
+                  alwaysLinkToLastBuild: false,
+                  keepAll: true,
+                  reportDir: 'build/reports/tests/test',
+                  reportFiles: '*.html',
+                  reportName: 'STANDALONE TESTS REPORT',
+                  reportTitles: ''
+              ])
             }
           }
         }
