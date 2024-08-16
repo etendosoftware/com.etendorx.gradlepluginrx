@@ -4,8 +4,10 @@ pipeline {
   }
 
   environment {
-    ACCESS_TOKEN        = credentials('github-access-token')
-    EMAIL_ADDRESS       = credentials('email_builds')
+    REPO_URL            = 'https://github.com/etendosoftware/com.etendorx.gradlepluginrx'
+    REPO_NAME           = 'com.etendorx.gradlepluginrx'
+    ACCESS_TOKEN        = credentials('access_token_github')
+    EMAIL_ADDRESS       = "lucas.aguirre@smfconsulting.es"
     CONTEXT_BUILD       = "Plugin RX Tests"
     
     COMMIT_PENDING_STATUS = "pending"
@@ -91,17 +93,12 @@ spec:
   }
 
   stages {
-    stage('Set Pending Status') {
+    stage('Setup') {
       steps {
-        container('gradle') {
+        container('compiler') {
           script {
-            try {
-              // Actualizar el estado del commit a "pending"
-              sh "./update-commit-status.sh ${env.JOB_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
-            } catch (Exception e) {
-              currentBuild.result = 'FAILURE'
-              error("Failed to set pending status: ${e.message}")
-            }
+            sh "ls pipelines"
+            sh ".pipelines/update.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
           }
         }
       }
@@ -109,7 +106,7 @@ spec:
 
     stage('Run Tests') {
       steps {
-        container('gradle') {
+        container('compiler') {
           script {
             try {
               sh './gradlew test'
@@ -126,14 +123,14 @@ spec:
   post {
     success {
       script {
-        sh "./update-commit-status.sh ${env.JOB_NAME} ${COMMIT_SUCCESS_STATUS} 'Tests passed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh ".pipelines/update.sh ${REPO_NAME} ${COMMIT_SUCCESS_STATUS} 'Tests passed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "✅ TESTS PASSED - ${currentBuild.fullDisplayName}",
       body: """
 Los tests para el Plugin RX han pasado exitosamente.
 
-Commit: ${env.JOB_NAME}/commit/${GIT_COMMIT}
+Commit: ${REPO_URL}/commit/${GIT_COMMIT}
 Build URL: ${BUILD_URL}
 
 Saludos,
@@ -142,14 +139,14 @@ Jenkins
     }
     failure {
       script {
-        sh "./update-commit-status.sh ${env.JOB_NAME} ${COMMIT_FAILED_STATUS} 'Tests failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh ".pipelines/update.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Tests failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "❌ TESTS FAILED - ${currentBuild.fullDisplayName}",
       body: """
 Los tests para el Plugin RX han fallado.
 
-Commit: ${env.JOB_NAME}/commit/${GIT_COMMIT}
+Commit: ${REPO_URL}/commit/${GIT_COMMIT}
 Build URL: ${BUILD_URL}
 
 Por favor, revisa los logs para más detalles.
