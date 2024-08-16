@@ -7,9 +7,23 @@ pipeline {
     REPO_URL            = 'https://github.com/etendosoftware/com.etendorx.gradlepluginrx'
     REPO_NAME           = 'com.etendorx.gradlepluginrx'
     ACCESS_TOKEN        = credentials('access_token_github')
-    EMAIL_ADDRESS       = "lucas.aguirre@smfconsulting.es"
+    EMAIL_ADDRESS       = credentials('email_builds')
     CONTEXT_BUILD       = "Plugin RX Tests"
-    
+
+
+    CONTEXT_NAME        = 'etendo'
+    BBDD_SID            = 'etendo'
+    BBDD_PORT           = '5432'
+    BBDD_SYSTEMUSER     = 'postgres'
+    BBDD_SYSTEMPASS     = 'syspass'
+    BBDD_USER           = 'tad'
+    BBDD_PASSWORD       = 'tad'
+    NEXUS_USER          = credentials('nexus-admin-user')
+    NEXUS_PASSWORD      = credentials('nexus-admin-passwd')
+    GITHUB_USER         = 'etendobot'
+    GITHUB_TOKEN        = credentials('github-read-package-token')
+    LANG                = 'en_US.UTF-8'
+
     COMMIT_PENDING_STATUS = "pending"
     COMMIT_SUCCESS_STATUS = "success"
     COMMIT_FAILED_STATUS  = "failure"
@@ -97,8 +111,8 @@ spec:
       steps {
         container('compiler') {
           script {
-            sh "ls pipelines"
-            sh ".pipelines/update.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+            sh "git config --global --add safe.directory /home/jenkins/agent/workspace/test_plugin_rx"
+            sh "./pipelines/update.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
           }
         }
       }
@@ -109,6 +123,21 @@ spec:
         container('compiler') {
           script {
             try {
+              sh """
+                echo -e "context.name=${CONTEXT_NAME}\n
+                bbdd.sid=${BBDD_SID}\n
+                bbdd.port=${BBDD_PORT}\n
+                bbdd.systemUser=${BBDD_SYSTEMUSER}\n
+                bbdd.systemPassword=${BBDD_SYSTEMPASS}\n
+                bbdd.user=${BBDD_USER}\n
+                bbdd.password=${BBDD_PASSWORD}\n
+                nexusUser=${NEXUS_USER}\n
+                nexusPassword=${NEXUS_PASSWORD}\n
+                githubUser=${GITHUB_USER}\n
+                githubToken=${GITHUB_TOKEN}\n
+                allow.root=true\n
+                org.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=1024m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" > gradle.properties
+              """
               sh './gradlew test'
             } catch (Exception e) {
               currentBuild.result = 'FAILURE'
@@ -123,7 +152,7 @@ spec:
   post {
     success {
       script {
-        sh ".pipelines/update.sh ${REPO_NAME} ${COMMIT_SUCCESS_STATUS} 'Tests passed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/update.sh ${REPO_NAME} ${COMMIT_SUCCESS_STATUS} 'Tests passed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "✅ TESTS PASSED - ${currentBuild.fullDisplayName}",
@@ -139,7 +168,7 @@ Jenkins
     }
     failure {
       script {
-        sh ".pipelines/update.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Tests failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/update.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Tests failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "❌ TESTS FAILED - ${currentBuild.fullDisplayName}",
