@@ -9,6 +9,7 @@ pipeline {
     ACCESS_TOKEN        = credentials("access_token_github")
     EMAIL_ADDRESS       = credentials("email_builds")
     CONTEXT_BUILD       = "Plugin RX Tests"
+    OWNER_REPOSITORY    = "etendosoftware"
 
     CONTEXT_NAME        = "etendo"
     BBDD_SID            = "etendo"
@@ -110,7 +111,14 @@ pipeline {
       steps {
         container("compiler") {
           script {
+            sh "	git config --global --add safe.directory /home/jenkins/agent/workspace/test_plugin_rx"
             sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+            def rootDir = pwd()
+            def infoCommit = load "${rootDir}/pipelines/infoCommits.groovy"
+            env.URL_ORG_GITHUB = "${REPO_URL}/${OWNER_REPOSITORY}"
+            def commitInfoTemplate = infoCommit.generateCommitInfo(env.URL_ORG_GITHUB, null, REPO_NAME, true, null)
+            env.COMMIT_INFO_TEMPLATE = "${commitInfoTemplate}"
+            echo "${env.COMMIT_INFO_TEMPLATE}"
           }
         }
       }
