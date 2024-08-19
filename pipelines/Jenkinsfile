@@ -4,25 +4,24 @@ pipeline {
   }
 
   environment {
-    REPO_URL            = 'https://github.com/etendosoftware/com.etendorx.gradlepluginrx'
-    REPO_NAME           = 'com.etendorx.gradlepluginrx'
-    ACCESS_TOKEN        = credentials('access_token_github')
-    EMAIL_ADDRESS       = "lucas.aguirre@smfconsulting.es"//credentials('email_builds')
+    REPO_URL            = "https://github.com/etendosoftware/com.etendorx.gradlepluginrx"
+    REPO_NAME           = "com.etendorx.gradlepluginrx"
+    ACCESS_TOKEN        = credentials("access_token_github")
+    EMAIL_ADDRESS       = credentials("email_builds")
     CONTEXT_BUILD       = "Plugin RX Tests"
 
-
-    CONTEXT_NAME        = 'etendo'
-    BBDD_SID            = 'etendo'
-    BBDD_PORT           = '5432'
-    BBDD_SYSTEMUSER     = 'postgres'
-    BBDD_SYSTEMPASS     = 'syspass'
-    BBDD_USER           = 'tad'
-    BBDD_PASSWORD       = 'tad'
-    NEXUS_USER          = credentials('nexus-admin-user')
-    NEXUS_PASSWORD      = credentials('nexus-admin-passwd')
-    GITHUB_USER         = 'etendobot'
-    GITHUB_TOKEN        = credentials('github-read-package-token')
-    LANG                = 'en_US.UTF-8'
+    CONTEXT_NAME        = "etendo"
+    BBDD_SID            = "etendo"
+    BBDD_PORT           = "5432"
+    BBDD_SYSTEMUSER     = "postgres"
+    BBDD_SYSTEMPASS     = "syspass"
+    BBDD_USER           = "tad"
+    BBDD_PASSWORD       = "tad"
+    NEXUS_USER          = credentials("nexus-admin-user")
+    NEXUS_PASSWORD      = credentials("nexus-admin-passwd")
+    GITHUB_USER         = "etendobot"
+    GITHUB_TOKEN        = credentials("github-read-package-token")
+    LANG                = "en_US.UTF-8"
 
     COMMIT_PENDING_STATUS = "pending"
     COMMIT_SUCCESS_STATUS = "success"
@@ -31,8 +30,8 @@ pipeline {
 
   agent {
     kubernetes {
-      inheritFrom 'jenkins-node-gradle'
-      defaultContainer 'jnlp'
+      inheritFrom "jenkins-node-gradle"
+      defaultContainer "jnlp"
       yaml """
 apiVersion: v1
 kind: Pod
@@ -40,7 +39,7 @@ metadata:
   name: jenkins-node-core-unittests-0
   namespace: jenkins
   labels:
-    app.kubernetes.io/name: jenkins-node-core-unittests
+    app.kubernetes.io/name: jenkins-node
 spec:
   volumes:
     - name: rsa-keys
@@ -107,58 +106,43 @@ spec:
   }
 
   stages {
-    stage('Setup') {
+    stage("Setup") {
       steps {
-        container('compiler') {
+        container("compiler") {
           script {
-            sh "git config --global --add safe.directory /home/jenkins/agent/workspace/test_plugin_rx"
-            sh "./pipelines/update.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+            sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
           }
         }
       }
     }
 
-    stage('Run Tests') {
+    stage("Run Tests") {
       steps {
-        container('compiler') {
+        container("compiler") {
           script {
             try {
-              sh """
-                echo -e "context.name=${CONTEXT_NAME}\n
-                bbdd.sid=${BBDD_SID}\n
-                bbdd.port=${BBDD_PORT}\n
-                bbdd.systemUser=${BBDD_SYSTEMUSER}\n
-                bbdd.systemPassword=${BBDD_SYSTEMPASS}\n
-                bbdd.user=${BBDD_USER}\n
-                bbdd.password=${BBDD_PASSWORD}\n
-                nexusUser=${NEXUS_USER}\n
-                nexusPassword=${NEXUS_PASSWORD}\n
-                githubUser=${GITHUB_USER}\n
-                githubToken=${GITHUB_TOKEN}\n
-                allow.root=true\n
-                org.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=1024m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" > gradle.properties
-              """
-              sh './gradlew test'
+              sh "cp gradle.properties.template gradle.properties"
+              sh "./gradlew test --info"
               publishHTML([
                   allowMissing: true,
                   alwaysLinkToLastBuild: false,
                   keepAll: true,
-                  reportDir: 'build/reports/tests/test',
-                  reportFiles: '*.html',
-                  reportName: 'STANDALONE TESTS REPORT',
-                  reportTitles: ''
+                  reportDir: "build/reports/tests/test",
+                  reportFiles: "*.html",
+                  reportName: "TESTS REPORT",
+                  reportTitles: ""
               ])
             } catch (Exception e) {
-              currentBuild.result = 'FAILURE'
-              error("Tests failed: ${e.message}")
+              currentBuild.result = "UNESTABLE"
+              unestable("Tests failed: ${e.message}")
               publishHTML([
                   allowMissing: false,
                   alwaysLinkToLastBuild: false,
                   keepAll: true,
-                  reportDir: 'build/reports/tests/test',
-                  reportFiles: '*.html',
-                  reportName: 'STANDALONE TESTS REPORT',
-                  reportTitles: ''
+                  reportDir: "build/reports/tests/test",
+                  reportFiles: "*.html",
+                  reportName: "STANDALONE TESTS REPORT",
+                  reportTitles: ""
               ])
             }
           }
@@ -169,38 +153,100 @@ spec:
 
   post {
     success {
+success {
       script {
-        sh "./pipelines/update.sh ${REPO_NAME} ${COMMIT_SUCCESS_STATUS} 'Tests passed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Succesful tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"      }
+    }
+    fixed {
+      mail to: EMAIL_ADDRESS,
+      subject: "✅ Errors Fixed on ${currentBuild.fullDisplayName} on ${GIT_BRANCH} branch",
+      mimeType: "text/html",
+      body: """
+        <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; }
+                  .header { font-size: 16px; font-weight: bold; color: #333; }
+              </style>
+          </head>
+          <body>
+            <p><em>${new Date()}</em></p>
+            <p>__________________________________________________________</p>
+
+            <h2 class="header">✅ ERRORS FIXED ✅ ✅</h2>
+
+            ${env.COMMIT_INFO_TEMPLATE}
+
+            <p>The problems found in the previous run/s have been fixed! 💪<br>Check out the output in the following link: ${env.BUILD_URL}</p>
+
+            <p class="footer"><em>Best regards,<br>#EtendoBot 🤖</em></p>
+            <p>__________________________________________________________</p>
+          </body>
+        </html>
+      """
+    }
+    unstable {
+      script {
+        sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'failed tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
-      subject: "✅ TESTS PASSED - ${currentBuild.fullDisplayName}",
+      subject: "🚨 Failed Tests of '${REPOSITORY_NAME}' on '${GIT_BRANCH}' branch",
+      mimeType: "text/html",
       body: """
-Los tests para el Plugin RX han pasado exitosamente.
+        <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; }
+                  .header { font-size: 16px; font-weight: bold; color: #333; }
+              </style>
+          </head>
+          <body>
+            <p><em>${new Date()}</em></p>
+            <p>__________________________________________________________</p>
 
-Commit: ${REPO_URL}/commit/${GIT_COMMIT}
-Build URL: ${BUILD_URL}
+            <h2 class="header">🚨 BUILD UNSTABLE 🚨</h2>
 
-Saludos,
-Jenkins
-"""
+            ${env.COMMIT_INFO_TEMPLATE}
+
+            <p>The 'App Loader' tests have failed.<br>Check out the output in the following link: ${env.BUILD_URL}
+
+            <p class="footer"><em>Best regards,<br>#EtendoBot 🤖</em></p>
+            <p>__________________________________________________________</p>
+          </body>
+        </html>
+      """
     }
+    
     failure {
       script {
-        sh "./pipelines/update.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Tests failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'build failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
-      subject: "❌ TESTS FAILED - ${currentBuild.fullDisplayName}",
-      body: """
-Los tests para el Plugin RX han fallado.
+      subject: "🚫 Build Failed in ${currentBuild.fullDisplayName} on '${GIT_BRANCH}' branch",
+      mimeType: "text/html",
+      body:  """
+        <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; }
+                  .header { font-size: 16px; font-weight: bold; color: #333; }
+              </style>
+          </head>
+          <body>
+            <p><em>${new Date()}</em></p>
+            <p>__________________________________________________________</p>
 
-Commit: ${REPO_URL}/commit/${GIT_COMMIT}
-Build URL: ${BUILD_URL}
+            <h2 class="header">🚫 BUILD FAILED 🚫</h2>
 
-Por favor, revisa los logs para más detalles.
+            ${env.COMMIT_INFO_TEMPLATE}
 
-Saludos,
-Jenkins
-"""
+            <p>The build has failed unexpectedly. This failure isn't likely to be caused by failing tests.<br>To more information on the failing run visit: ${env.BUILD_URL}</p>
+
+            <p class="footer"><em>Best regards,<br>#EtendoBot 🤖</em></p>
+            <p>__________________________________________________________</p>
+          </body>
+        </html>
+      """
     }
   }
 }
