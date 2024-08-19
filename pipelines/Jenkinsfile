@@ -112,9 +112,9 @@ pipeline {
         container("compiler") {
           script {
             sh "	git config --global --add safe.directory /home/jenkins/agent/workspace/test_plugin_rx"
-            sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+            sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
             def rootDir = pwd()
-            def infoCommit = load "${rootDir}/pipelines/infoCommits.groovy"
+            def infoCommit = load "${rootDir}/pipelines/utils/infoCommits.groovy"
             env.URL_ORG_GITHUB = "${REPO_URL}/${OWNER_REPOSITORY}"
             def commitInfoTemplate = infoCommit.generateCommitInfo(env.URL_ORG_GITHUB, null, REPO_NAME, true, null)
             env.COMMIT_INFO_TEMPLATE = "${commitInfoTemplate}"
@@ -162,7 +162,7 @@ pipeline {
   post {
     success {
       script {
-        sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'succesful test' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'succesful test' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
     }
     fixed {
@@ -195,7 +195,7 @@ pipeline {
     }
     unstable {
       script {
-        sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'failed tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'failed tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "🚨 Failed Tests of '${REPOSITORY_NAME}' on '${GIT_BRANCH}' branch",
@@ -227,7 +227,7 @@ pipeline {
     
     failure {
       script {
-        sh "./pipelines/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'build failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'build failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "🚫 Build Failed in ${currentBuild.fullDisplayName} on '${GIT_BRANCH}' branch",
