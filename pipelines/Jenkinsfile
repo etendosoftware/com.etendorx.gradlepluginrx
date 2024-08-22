@@ -4,8 +4,8 @@ pipeline {
   }
 
   environment {
-    REPO_URL            = "https://github.com/etendosoftware/com.etendorx.gradlepluginrx"
     REPO_NAME           = "com.etendorx.gradlepluginrx"
+    REPO_URL            = "git@github.com:etendosoftware/com.etendorx.gradlepluginrx.git"
     ACCESS_TOKEN        = credentials("access_token_github")
     EMAIL_ADDRESS       = credentials("email_builds")
     CONTEXT_BUILD       = "Plugin RX Tests"
@@ -23,6 +23,8 @@ pipeline {
     GITHUB_USER         = "etendobot"
     GITHUB_TOKEN        = credentials("github-read-package-token")
     LANG                = "en_US.UTF-8"
+
+
 
     COMMIT_PENDING_STATUS = "pending"
     COMMIT_SUCCESS_STATUS = "success"
@@ -111,14 +113,19 @@ pipeline {
       steps {
         container("compiler") {
           script {
-            sh "	git config --global --add safe.directory /home/jenkins/agent/workspace/test_plugin_rx"
             sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
-            def rootDir = pwd()
-            def infoCommit = load "${rootDir}/pipelines/utils/infoCommits.groovy"
-            env.URL_ORG_GITHUB = "${REPO_URL}/${OWNER_REPOSITORY}"
-            def commitInfoTemplate = infoCommit.generateCommitInfo(env.URL_ORG_GITHUB, null, REPO_NAME, true, null)
-            env.COMMIT_INFO_TEMPLATE = "${commitInfoTemplate}"
-            echo "${env.COMMIT_INFO_TEMPLATE}"
+             withCredentials([sshUserPrivateKey(credentialsId: 'my-credentials', keyFileVariable: 'keyfile')]) {
+                sh "GIT_SSH_COMMAND=\"ssh -i ${keyfile} -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\"\" git clone ${REPO_URL} ${REPO_NAME}"
+            }
+            dir(REPO_NAME) {
+                sh "git checkout ${GIT_COMMIT}"
+                def rootDir = pwd()
+                def infoCommit = load "${rootDir}/pipelines/utils/infoCommits.groovy"
+                env.URL_ORG_GITHUB = "${REPO_URL}/${OWNER_REPOSITORY}"
+                def commitInfoTemplate = infoCommit.generateCommitInfo(env.URL_ORG_GITHUB, null, REPO_NAME, true, null)
+                env.COMMIT_INFO_TEMPLATE = "${commitInfoTemplate}"
+                echo "${env.COMMIT_INFO_TEMPLATE}"
+            }
           }
         }
       }
@@ -128,31 +135,33 @@ pipeline {
       steps {
         container("compiler") {
           script {
-            try {
-              sh "cp gradle.properties.template gradle.properties"
-              sh "./gradlew test --info"
-              publishHTML([
-                  allowMissing: true,
-                  alwaysLinkToLastBuild: false,
-                  keepAll: true,
-                  reportDir: "build/reports/tests/test",
-                  reportFiles: "*.html",
-                  reportName: "TESTS REPORT",
-                  reportTitles: ""
-              ])
-            } catch (Exception e) {
-              currentBuild.result = "UNESTABLE"
-              unestable("Tests failed: ${e.message}")
-              publishHTML([
-                  allowMissing: false,
-                  alwaysLinkToLastBuild: false,
-                  keepAll: true,
-                  reportDir: "build/reports/tests/test",
-                  reportFiles: "*.html",
-                  reportName: "STANDALONE TESTS REPORT",
-                  reportTitles: ""
-              ])
-            }
+              dir(REPO_NAME) {
+                try {
+                  sh "cp gradle.properties.template gradle.properties"
+                  sh "./gradlew test --info"
+                  publishHTML([
+                      allowMissing: true,
+                      alwaysLinkToLastBuild: false,
+                      keepAll: true,
+                      reportDir: "build/reports/tests/test",
+                      reportFiles: "*.html",
+                      reportName: "TESTS REPORT",
+                      reportTitles: ""
+                  ])
+                } catch (Exception e) {
+                  currentBuild.result = "UNESTABLE"
+                  unestable("Tests failed: ${e.message}")
+                  publishHTML([
+                      allowMissing: false,
+                      alwaysLinkToLastBuild: false,
+                      keepAll: true,
+                      reportDir: "build/reports/tests/test",
+                      reportFiles: "*.html",
+                      reportName: "TESTS REPORT",
+                      reportTitles: ""
+                  ])
+                }
+              }
           }
         }
       }
