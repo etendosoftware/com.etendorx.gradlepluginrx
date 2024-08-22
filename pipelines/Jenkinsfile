@@ -13,6 +13,7 @@ pipeline {
 
     COMMIT_PENDING_STATUS = "pending"
     COMMIT_FAILED_STATUS  = "failure"
+    COMMIT_SUCCESFUL_STATUS = "success"
   }
 
   agent {
@@ -137,7 +138,7 @@ spec:
   post {
     success {
       script {
-        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'succesful test' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_SUCCESFUL_STATUS} 'succesful test' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
     }
     fixed {
