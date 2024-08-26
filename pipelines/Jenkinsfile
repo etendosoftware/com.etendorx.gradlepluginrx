@@ -1,0 +1,237 @@
+pipeline {
+  options {
+    disableConcurrentBuilds()
+  }
+
+  environment {
+    REPO_NAME           = "com.etendorx.gradlepluginrx"
+    REPO_URL            = "git@github.com:etendosoftware/com.etendorx.gradlepluginrx.git"
+    ACCESS_TOKEN        = credentials("access_token_github")
+    EMAIL_ADDRESS       = credentials("email_builds")
+    CONTEXT_BUILD       = "Plugin RX Tests"
+    OWNER_REPOSITORY    = "etendosoftware"
+
+    COMMIT_PENDING_STATUS = "pending"
+    COMMIT_FAILED_STATUS  = "failure"
+    COMMIT_SUCCESFUL_STATUS = "success"
+  }
+
+  agent {
+    kubernetes {
+      inheritFrom "jenkins-node-gradle"
+      defaultContainer "jnlp"
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-node-gradle-0
+  namespace: jenkins
+  labels:
+    app.kubernetes.io/name: jenkins-node
+spec:
+  volumes:
+    - name: rsa-keys
+      configMap:
+        name: rsa-keys
+        defaultMode: 384
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+  containers:
+    - name: compiler
+      image: etendo/compiler_jenkins:1.0.6
+      ports:
+        - name: ssh
+          containerPort: 22
+          protocol: TCP
+        - name: visualvm
+          containerPort: 8000
+          protocol: TCP
+      resources:
+        limits:
+          cpu: 3072m
+          memory: 5000Mi
+        requests:
+          cpu: 3072m
+          memory: 5000Mi
+      volumeMounts:
+        - name: rsa-keys
+          mountPath: /root/.ssh/
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+      lifecycle:
+        postStart:
+          exec:
+            command:
+              - bash
+              - '-c'
+              - >-
+                chmod a+x /var/run/docker.sock && rm
+                /etc/apt/sources.list.d/pgdg.list || echo 0 && apt update && apt
+                install -y curl
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 30
+  dnsPolicy: ClusterFirst
+  serviceAccountName: default
+  serviceAccount: default
+  securityContext: {}
+"""
+    }
+  }
+
+  stages {
+    stage("Setup") {
+      steps {
+        container("compiler") {
+          script {
+            sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+             withCredentials([sshUserPrivateKey(credentialsId: 'my-credentials', keyFileVariable: 'keyfile')]) {
+                sh "GIT_SSH_COMMAND=\"ssh -i ${keyfile} -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\"\" git clone ${REPO_URL} ${REPO_NAME}"
+            }
+            dir(REPO_NAME) {
+                sh "git checkout ${GIT_COMMIT}"
+                def rootDir = pwd()
+                def infoCommit = load "${rootDir}/pipelines/utils/infoCommits.groovy"
+                env.URL_ORG_GITHUB = "${REPO_URL}/${OWNER_REPOSITORY}"
+                def commitInfoTemplate = infoCommit.generateCommitInfo(env.URL_ORG_GITHUB, null, REPO_NAME, true, null)
+                env.COMMIT_INFO_TEMPLATE = "${commitInfoTemplate}"
+                echo "${env.COMMIT_INFO_TEMPLATE}"
+            }
+          }
+        }
+      }
+    }
+
+    stage("Run Tests") {
+      steps {
+        container("compiler") {
+          script {
+            dir(REPO_NAME) {
+              try {
+                sh "cp gradle.properties.template gradle.properties"
+                sh "./gradlew test --info"
+              } catch (Exception e) {
+                currentBuild.result = 'UNSTABLE'
+                unstable("Tests failed: ${e.message}")
+              } finally {
+                publishHTML([
+                  allowMissing: true,
+                  alwaysLinkToLastBuild: false,
+                  keepAll: true,
+                  reportDir: "build/reports/tests/test",
+                  reportFiles: "*.html",
+                  reportName: "TESTS REPORT",
+                  reportTitles: ""
+                ])
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_SUCCESFUL_STATUS} 'succesful test' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+      }
+    }
+    fixed {
+      mail to: EMAIL_ADDRESS,
+      subject: "✅ Errors Fixed on ${currentBuild.fullDisplayName} on ${GIT_BRANCH} branch",
+      mimeType: "text/html",
+      body: """
+        <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; }
+                  .header { font-size: 16px; font-weight: bold; color: #333; }
+              </style>
+          </head>
+          <body>
+            <p><em>${new Date()}</em></p>
+            <p>__________________________________________________________</p>
+
+            <h2 class="header">✅ ERRORS FIXED ✅ ✅</h2>
+
+            ${env.COMMIT_INFO_TEMPLATE}
+
+            <p>The problems found in the previous run/s have been fixed! 💪<br>Check out the output in the following link: ${env.BUILD_URL}</p>
+
+            <p class="footer"><em>Best regards,<br>#EtendoBot 🤖</em></p>
+            <p>__________________________________________________________</p>
+          </body>
+        </html>
+      """
+    }
+    unstable {
+      script {
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'failed tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+      }
+      mail to: EMAIL_ADDRESS,
+      subject: "🚨 Failed Tests of '${REPOSITORY_NAME}' on '${GIT_BRANCH}' branch",
+      mimeType: "text/html",
+      body: """
+        <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; }
+                  .header { font-size: 16px; font-weight: bold; color: #333; }
+              </style>
+          </head>
+          <body>
+            <p><em>${new Date()}</em></p>
+            <p>__________________________________________________________</p>
+
+            <h2 class="header">🚨 BUILD UNSTABLE 🚨</h2>
+
+            ${env.COMMIT_INFO_TEMPLATE}
+
+            <p>The 'App Loader' tests have failed.<br>Check out the output in the following link: ${env.BUILD_URL}
+
+            <p class="footer"><em>Best regards,<br>#EtendoBot 🤖</em></p>
+            <p>__________________________________________________________</p>
+          </body>
+        </html>
+      """
+    }
+    
+    failure {
+      script {
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'build failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+      }
+      mail to: EMAIL_ADDRESS,
+      subject: "🚫 Build Failed in ${currentBuild.fullDisplayName} on '${GIT_BRANCH}' branch",
+      mimeType: "text/html",
+      body:  """
+        <html>
+          <head>
+              <style>
+                  body { font-family: 'Arial', sans-serif; }
+                  .header { font-size: 16px; font-weight: bold; color: #333; }
+              </style>
+          </head>
+          <body>
+            <p><em>${new Date()}</em></p>
+            <p>__________________________________________________________</p>
+
+            <h2 class="header">🚫 BUILD FAILED 🚫</h2>
+
+            ${env.COMMIT_INFO_TEMPLATE}
+
+            <p>The build has failed unexpectedly. This failure isn't likely to be caused by failing tests.<br>To more information on the failing run visit: ${env.BUILD_URL}</p>
+
+            <p class="footer"><em>Best regards,<br>#EtendoBot 🤖</em></p>
+            <p>__________________________________________________________</p>
+          </body>
+        </html>
+      """
+    }
+  }
+}
+
