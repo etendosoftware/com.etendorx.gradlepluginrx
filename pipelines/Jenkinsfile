@@ -88,7 +88,7 @@ spec:
       steps {
         container("compiler") {
           script {
-            sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Tests in progress' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+            sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Setup Environment' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
              withCredentials([sshUserPrivateKey(credentialsId: 'my-credentials', keyFileVariable: 'keyfile')]) {
                 sh "GIT_SSH_COMMAND=\"ssh -i ${keyfile} -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\"\" git clone ${REPO_URL} ${REPO_NAME}"
             }
@@ -112,6 +112,7 @@ spec:
           script {
             dir(REPO_NAME) {
               try {
+                sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_PENDING_STATUS} 'Running Tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
                 sh "cp gradle.properties.template gradle.properties"
                 sh "./gradlew test --info"
               } catch (Exception e) {
@@ -138,7 +139,7 @@ spec:
   post {
     success {
       script {
-        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_SUCCESFUL_STATUS} 'succesful test' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_SUCCESFUL_STATUS} 'Successful Tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
     }
     fixed {
@@ -171,7 +172,7 @@ spec:
     }
     unstable {
       script {
-        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'failed tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Failed Tests' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "🚨 Failed Tests of '${REPOSITORY_NAME}' on '${GIT_BRANCH}' branch",
@@ -203,7 +204,7 @@ spec:
     
     failure {
       script {
-        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'build failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
+        sh "./pipelines/utils/update-status.sh ${REPO_NAME} ${COMMIT_FAILED_STATUS} 'Build Failed' ${ACCESS_TOKEN} ${GIT_COMMIT} ${BUILD_URL} '${CONTEXT_BUILD}'"
       }
       mail to: EMAIL_ADDRESS,
       subject: "🚫 Build Failed in ${currentBuild.fullDisplayName} on '${GIT_BRANCH}' branch",
