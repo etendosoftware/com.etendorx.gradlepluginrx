@@ -130,12 +130,8 @@ class RxTutorialIntegrationTest {
         def buildGradle = projectDir.resolve("build.gradle")
         def content = buildGradle.text
         
-        // Remove incompatible plugins for the test environment
-        content = content.replaceAll(/id 'com.etendoerp.gradleplugin' version '.*'/, "")
+        // Keep Etendo Core plugin but remove testing plugin for test environment
         content = content.replaceAll(/id 'com.etendoerp.testing.gradleplugin' version '.*'/, "")
-        
-        // Remove etendo block if it exists
-        content = content.replaceAll(/etendo \{[\s\S]*?\}/, "")
 
         if (!content.contains("com.etendorx.gradlepluginrx")) {
             // Inject plugin application

@@ -12,11 +12,17 @@ class RxTemplateTasks {
     static final String RX_NEW_MODULE_TASK = 'rx.new.module'
 
     static void load(Project project) {
+        // Only register these tasks on the root project to avoid duplicate execution
+        if (project != project.rootProject) {
+            return
+        }
+
         project.tasks.register(RX_INIT_TASK) {
             group = 'rx'
             description = 'Creates src-rx structure from templates, copies Openbravo.properties, and configures root project'
             doLast {
                 createRxStructure(project)
+                createModulesGenStructure(project)
                 configureRootProject(project)
             }
         }
@@ -44,12 +50,51 @@ class RxTemplateTasks {
 
         File obSource = new File(rootDir, 'config/Openbravo.properties')
         File obTarget = new File(resourcesDir, 'openbravo.properties')
+        File gradlePropsTarget = new File(srcRxDir, 'gradle.properties')
         if (obSource.exists()) {
             obTarget.parentFile.mkdirs()
             obTarget.bytes = obSource.bytes
             project.logger.lifecycle("Copied Openbravo.properties to ${project.relativePath(obTarget)}")
+
+            // Copy and append RX-specific properties
+            String content = obSource.text
+            content += """
+
+# RX Configuration (added by rx.init)
+rx.generateCode=true
+rx.path=.
+rx.computedColumns=true
+rx.views=true
+"""
+            gradlePropsTarget.text = content
+            project.logger.lifecycle("Created ${project.relativePath(gradlePropsTarget)} with RX properties")
         } else {
             project.logger.warn("Openbravo.properties not found at ${project.relativePath(obSource)}")
+        }
+    }
+
+    private static void createModulesGenStructure(Project project) {
+        File modulesGenDir = new File(project.rootDir, 'src-rx/modules_gen')
+
+        // List of modules to create with their template files
+        def modules = [
+            'com.etendorx.entities': ['build.gradle'],
+            'com.etendorx.clientrest': ['build.gradle'],
+            'com.etendorx.entitiesModel': ['build.gradle'],
+            'com.etendorx.grpc.common': ['build.gradle', 'grpc.gradle']
+        ]
+
+        modules.each { moduleName, files ->
+            File moduleDir = new File(modulesGenDir, moduleName)
+            moduleDir.mkdirs()
+
+            files.each { fileName ->
+                String templatePath = "etendorx/templates/modules_gen/${moduleName}/${fileName}"
+                File destFile = new File(moduleDir, fileName)
+                writeTemplateIfMissing(project, templatePath, destFile, [:])
+            }
+
+            project.logger.lifecycle("Created module structure: ${project.relativePath(moduleDir)}")
         }
     }
 
@@ -85,56 +130,6 @@ rxDirs.each {
 }
 """)
                 project.logger.lifecycle("Updated settings.gradle with RX configuration")
-            }
-        }
-
-        File rootBuild = new File(project.rootDir, 'build.gradle')
-        if (rootBuild.exists()) {
-            String content = rootBuild.text
-            boolean modified = false
-            
-            // 1. Enable Core in JARs (uncomment dependency)
-            if (content.contains("com.etendoerp.platform:etendo-core")) {
-                // Find commented line and uncomment it
-                def coreJarPattern = ~/\/\/\s*implementation\(['"]com.etendoerp.platform:etendo-core:.*['"]\)/
-                if (content =~ coreJarPattern) {
-                    content = content.replaceFirst(coreJarPattern, "implementation('com.etendoerp.platform:etendo-core:[25.1.0,26.1.0)')")
-                    modified = true
-                    project.logger.lifecycle("Enabled Etendo Core in JAR format in build.gradle")
-                }
-            }
-
-            // 2. Comment out etendo block
-            if (content.contains("etendo {") && !content.contains("// etendo {")) {
-                content = content.replace("etendo {", "// etendo {")
-                // This is a simple replacement, might need more logic for closing brace if strictly necessary, 
-                // but usually commenting the start is enough to break the block or we can try a multi-line regex.
-                modified = true
-                project.logger.lifecycle("Commented out 'etendo' block in build.gradle")
-            }
-
-            // 3. Inject RX repositories
-            if (!content.contains("maven.pkg.github.com/etendosoftware/etendo_rx")) {
-                content += """
-allprojects {
-    repositories {
-        mavenCentral()
-        maven {
-            url = "https://maven.pkg.github.com/etendosoftware/etendo_rx"
-            credentials {
-                username = project.findProperty("githubUser") ?: System.getenv("GITHUB_USER")
-                password = project.findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-}
-"""
-                modified = true
-                project.logger.lifecycle("Updated build.gradle with RX repositories")
-            }
-            
-            if (modified) {
-                rootBuild.text = content
             }
         }
     }

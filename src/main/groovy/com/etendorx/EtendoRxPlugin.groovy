@@ -35,14 +35,42 @@ class EtendoRxPlugin implements Plugin<Project> {
         project.getPluginManager().apply(MavenPublishPlugin)
         project.getPluginManager().apply(WarPlugin)
 
-        // Only load CodeGenLoader for subprojects (e.g., :rx) to avoid task conflicts
-        // with the Etendo Classic plugin's generate.entities task in the root project
-        if (project != project.rootProject) {
+        // Add RX repositories dynamically to all projects
+        configureRepositories(project)
+
+        // Check if Etendo Classic plugin is present (indicates etendo_base environment)
+        def isEtendoBase = project.rootProject.plugins.hasPlugin('com.etendoerp.gradleplugin')
+
+        // Only load CodeGenLoader for subprojects when in etendo_base (e.g., :rx)
+        // to avoid task conflicts with the Etendo Classic plugin's generate.entities task
+        // In etendo_rx (pure RX project), load for all projects including root
+        if (!isEtendoBase || project != project.rootProject) {
             CodeGenLoader.load(project)
         }
-        
-        // RxLoader provides rx.init and rx.new.module tasks - always load for all projects
+
+        // RxLoader handles detection internally and loads appropriately based on environment
         RxLoader.load(project)
+    }
+
+    /**
+     * Configures RX repositories for the project and all subprojects.
+     */
+    private static void configureRepositories(Project project) {
+        // Only configure from root project to avoid duplicates
+        if (project == project.rootProject) {
+            project.allprojects { p ->
+                p.repositories {
+                    mavenCentral()
+                    maven {
+                        url = "https://maven.pkg.github.com/etendosoftware/etendo_rx"
+                        credentials {
+                            username = p.findProperty("githubUser") ?: System.getenv("GITHUB_USER")
+                            password = p.findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
