@@ -35,7 +35,13 @@ class EtendoRxPlugin implements Plugin<Project> {
         project.getPluginManager().apply(MavenPublishPlugin)
         project.getPluginManager().apply(WarPlugin)
 
-        CodeGenLoader.load(project)
+        // Only load CodeGenLoader for subprojects (e.g., :rx) to avoid task conflicts
+        // with the Etendo Classic plugin's generate.entities task in the root project
+        if (project != project.rootProject) {
+            CodeGenLoader.load(project)
+        }
+        
+        // RxLoader provides rx.init and rx.new.module tasks - always load for all projects
         RxLoader.load(project)
     }
 

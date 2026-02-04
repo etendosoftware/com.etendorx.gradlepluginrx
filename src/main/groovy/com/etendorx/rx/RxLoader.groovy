@@ -17,6 +17,7 @@ class RxLoader {
      */
     static void load(Project project) {
         RxConfigSetup.load(project)
+        RxTemplateTasks.load(project)
         new RxLaunch(project)
     }
 

@@ -1,0 +1,35 @@
+plugins {
+    id 'org.springframework.boot' version '3.1.4'
+    id 'io.spring.dependency-management' version '1.1.3'
+    id 'java'
+    id 'java-library'
+    id 'groovy'
+    id 'com.etendorx.gradlepluginrx'
+}
+
+group = 'com.etendorx'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://maven.pkg.github.com/etendosoftware/etendo_rx"
+        credentials {
+            username = "${githubUser}"
+            password = "${githubToken}"
+        }
+    }
+    maven {
+        url 'https://repo.futit.cloud/repository/maven-public-snapshots'
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
