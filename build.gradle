@@ -68,6 +68,11 @@ dependencies {
 
     testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
     testImplementation 'junit:junit:4.13.1'
+    
+    // JUnit 5 (Jupiter) for integration tests
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
     testImplementation( "com.athaydes:spock-reports:2.0-groovy-3.0" ) {
         transitive = false // this avoids affecting your version of Groovy/Spock
     }

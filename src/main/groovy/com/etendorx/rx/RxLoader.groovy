@@ -16,8 +16,20 @@ class RxLoader {
      * @param project The Gradle project
      */
     static void load(Project project) {
-        RxConfigSetup.load(project)
-        new RxLaunch(project)
+        // Check if Etendo Classic plugin is present (indicates etendo_base environment)
+        def isEtendoBase = project.rootProject.plugins.hasPlugin('com.etendoerp.gradleplugin')
+        
+        // RxTemplateTasks provides rx.init and rx.new.module - always load for all projects
+        // These tasks are needed in root to create the initial :rx structure
+        RxTemplateTasks.load(project)
+        
+        // Only load RxConfigSetup and RxLaunch for subprojects when in etendo_base
+        // to avoid task conflicts with existing tasks in the root project (setup, rx, etc.)
+        // In etendo_rx (pure RX project), load for all projects including root
+        if (!isEtendoBase || project != project.rootProject) {
+            RxConfigSetup.load(project)
+            new RxLaunch(project)
+        }
     }
 
 }

@@ -1,0 +1,5 @@
+githubUser=
+githubToken=
+
+# Rx generator version (required to select the correct main class)
+rx.version=2.3.3
