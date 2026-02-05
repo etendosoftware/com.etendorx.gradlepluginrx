@@ -1,6 +1,6 @@
 pipeline {
   options {
-    disableConcurrentBuilds()
+    disableConcurrentBuilds(abortPrevious: true)
   }
 
   environment {
@@ -10,6 +10,9 @@ pipeline {
     EMAIL_ADDRESS       = credentials("email_builds")
     CONTEXT_BUILD       = "Plugin RX Tests"
     OWNER_REPOSITORY    = "etendosoftware"
+    GITHUB_USER         = 'etendobot'
+    GITHUB_TOKEN        = credentials('github-read-package-token')
+    JAVA_HOME           = "/usr/lib/jvm/jdk-17.0.13"
 
     COMMIT_PENDING_STATUS = "pending"
     COMMIT_FAILED_STATUS  = "failure"
@@ -25,7 +28,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: jenkins-node-gradle-0
-  namespace: jenkins
+  namespace: jenkins2025
   labels:
     app.kubernetes.io/name: jenkins-node
 spec:
@@ -34,13 +37,9 @@ spec:
       configMap:
         name: rsa-keys
         defaultMode: 384
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker.sock
-        type: ''
   containers:
     - name: compiler
-      image: etendo/compiler_jenkins:1.0.6
+      image: etendo/compiler_jenkins:1.0.7-jdk.17.0.13
       ports:
         - name: ssh
           containerPort: 22
@@ -58,8 +57,6 @@ spec:
       volumeMounts:
         - name: rsa-keys
           mountPath: /root/.ssh/
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
       lifecycle:
         postStart:
           exec:
@@ -67,8 +64,7 @@ spec:
               - bash
               - '-c'
               - >-
-                chmod a+x /var/run/docker.sock && rm
-                /etc/apt/sources.list.d/pgdg.list || echo 0 && apt update && apt
+                rm /etc/apt/sources.list.d/pgdg.list || echo 0 && apt update && apt
                 install -y curl
       terminationMessagePath: /dev/termination-log
       terminationMessagePolicy: File

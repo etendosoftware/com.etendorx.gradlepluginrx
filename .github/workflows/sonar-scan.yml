@@ -22,8 +22,8 @@ jobs:
           cache: gradle
       - name: Build with gradle
         run: |
-          cp gradle.properties.template gradle.properties 
-          ./gradlew clean build
+          cp gradle.properties.template gradle.properties
+          ./gradlew clean classes -x test
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_SCANNER_OPTS: "-Xmx4096m"

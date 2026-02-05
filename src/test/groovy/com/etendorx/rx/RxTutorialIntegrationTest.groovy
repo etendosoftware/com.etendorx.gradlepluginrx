@@ -103,10 +103,10 @@ class RxTutorialIntegrationTest {
         
         if (sourceGradleProps.exists()) {
             Files.copy(sourceGradleProps.toPath(), targetGradleProps, StandardCopyOption.REPLACE_EXISTING)
-            
+
             // Append test configuration
             targetGradleProps.toFile().append("""
-                
+
                 # Disable daemon and parallel execution in test environment
                 org.gradle.daemon=false
                 org.gradle.parallel=false
@@ -117,12 +117,22 @@ class RxTutorialIntegrationTest {
             targetGradleProps.text = """
                 githubUser=test
                 githubToken=test
-                
+
                 # Disable daemon and parallel execution in test environment
                 org.gradle.daemon=false
                 org.gradle.parallel=false
                 org.gradle.caching=false
             """.stripIndent()
+        }
+
+        // Override credentials with CI environment variables if available
+        def ghUser = System.getenv("GITHUB_USER")
+        def ghToken = System.getenv("GITHUB_TOKEN")
+        if (ghUser && ghToken) {
+            def content = targetGradleProps.toFile().text
+            content = content.replaceAll(/(?m)^githubUser=.*$/, "githubUser=${ghUser}")
+            content = content.replaceAll(/(?m)^githubToken=.*$/, "githubToken=${ghToken}")
+            targetGradleProps.toFile().text = content
         }
     }
 
