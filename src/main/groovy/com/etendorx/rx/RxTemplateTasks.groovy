@@ -42,8 +42,8 @@ class RxTemplateTasks {
         File resourcesDir = new File(srcRxDir, 'src/main/resources')
         resourcesDir.mkdirs()
 
-        writeTemplateIfMissing(project, 'etendorx/templates/src-rx/build.gradle', new File(srcRxDir, 'build.gradle'), [:])
-        writeTemplateIfMissing(project, 'etendorx/templates/src-rx/settings.gradle', new File(srcRxDir, 'settings.gradle'), [:])
+        writeTemplateIfMissing(project, 'etendorx/templates/src-rx/build.gradle.template', new File(srcRxDir, 'build.gradle'), [:])
+        writeTemplateIfMissing(project, 'etendorx/templates/src-rx/settings.gradle.template', new File(srcRxDir, 'settings.gradle'), [:])
         writeTemplateIfMissing(project, 'etendorx/templates/src-rx/gradle.properties.template', new File(srcRxDir, 'gradle.properties.template'), [:])
 
         new File(srcRxDir, 'rxconfig').mkdirs()
@@ -89,7 +89,7 @@ rx.views=true
             moduleDir.mkdirs()
 
             files.each { fileName ->
-                String templatePath = "etendorx/templates/modules_gen/${moduleName}/${fileName}"
+                String templatePath = "etendorx/templates/modules_gen/${moduleName}/${fileName}.template"
                 File destFile = new File(moduleDir, fileName)
                 writeTemplateIfMissing(project, templatePath, destFile, [:])
             }
@@ -158,9 +158,9 @@ rxDirs.each {
                 '__MODULE_NAME__'     : moduleName,
         ]
 
-        writeTemplateIfMissing(project, 'etendorx/templates/module/build.gradle', new File(moduleDir, 'build.gradle'), tokens)
+        writeTemplateIfMissing(project, 'etendorx/templates/module/build.gradle.template', new File(moduleDir, 'build.gradle'), tokens)
         writeTemplateIfMissing(project, 'etendorx/templates/module/application.properties', new File(resourcesDir, 'application.properties'), tokens)
-        writeTemplateIfMissing(project, 'etendorx/templates/module/Application.java', new File(javaDir, "${className}.java"), tokens)
+        writeTemplateIfMissing(project, 'etendorx/templates/module/Application.java.template', new File(javaDir, "${className}.java"), tokens)
         
         project.logger.lifecycle("RX Module created at ${project.relativePath(moduleDir)}")
         project.logger.lifecycle("Don't forget to refresh your Gradle project!")
